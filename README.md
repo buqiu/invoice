@@ -7,7 +7,7 @@
 ## 安装
 
 ```
-composer require momo/invoice
+composer require buqiu/invoice
 ```
 
 ## 用法
