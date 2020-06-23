@@ -1,9 +1,9 @@
 <?php
 /**
- * Created by PhpStorm.
- * User: JV
- * Date: 2017/5/29
- * Time: 10:16
+ * Name: 发票配置文件.
+ * User: 董坤鸿
+ * Date: 2020/06/23
+ * Time: 14:39
  */
 namespace invoice\src;
 

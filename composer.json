@@ -1,5 +1,5 @@
 {
-    "name": "momo/invoice",
+    "name": "buqiu/invoice",
     "description": "上海航天信息电子发票对接平台",
     "type": "library",
     "license": "MIT",
@@ -9,11 +9,15 @@
             "email": "249529979@qq.com"
         }
     ],
-    "minimum-stability": "dev",
     "require": {
         "php":">=7.0.0"
     },
+    "minimum-stability": "stable",
+
     "autoload": {
-        "psr-4": { "invoice\\": "src/" }
+        "files": [],
+        "psr-4": {
+            "Buqiu\\Invoice\\": "src"
+        }
     }
 }

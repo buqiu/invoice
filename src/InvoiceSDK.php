@@ -1,12 +1,12 @@
 <?php
 /**
- * Created by PhpStorm.
- * User: JV
- * Date: 2017/5/29
- * Time: 10:35
+ * Name: 发票SDK.
+ * User: 董坤鸿
+ * Date: 2020/06/23
+ * Time: 13:59
  */
 
-namespace invoice\src;
+namespace Buqiu\Invoice;
 
 class InvoiceSDK
 {
@@ -48,14 +48,14 @@ class InvoiceSDK
                 $items[$key]['FPHXZ'] = 2;
                 $items[$key]['discount'] = [
                     'XMMC' => $show_name,
-                    'XMSL' => '-' . sprintf('%.8f', 1),
+                    'XMSL' => '-'.sprintf('%.8f', 1),
                     'FPHXZ' => '1',
                     'XMDJ' => sprintf('%.8f', $arr['discount']),
                     'SPBM' => $item['spbm'],
                     'ZXBM' => $item['id'],
-                    'XMJE' => '-' . sprintf('%.2f', $arr['discount']),
+                    'XMJE' => '-'.sprintf('%.2f', $arr['discount']),
                     'SL' => $item['sl'],
-                    'HSBZ' => $item['hsbz']
+                    'HSBZ' => $item['hsbz'],
                 ];
             } else {
                 $items[$key]['FPHXZ'] = 0;
@@ -112,7 +112,7 @@ class InvoiceSDK
         if (is_array($headerArr) && !empty($headerArr)) {
             $queryHeaders = array();
             foreach ($headerArr as $k => $v) {
-                $queryHeaders[] = $k . ':' . $v;
+                $queryHeaders[] = $k.':'.$v;
             }
             //print_r($queryHeaders);
             $headers = array_merge($headers, $queryHeaders);
@@ -152,7 +152,7 @@ class InvoiceSDK
     public function download(array $arr)
     {
         $len = strlen($arr['order_bn']);
-        $data['lsh'] = str_repeat('0', 20 - $len) . $arr['order_bn'];
+        $data['lsh'] = str_repeat('0', 20 - $len).$arr['order_bn'];
         $data['PDF_XZFS'] = 3;
         $data['DDH'] = $arr['order_bn'];
         $data['FPQQLSH'] = $arr['FPQQLSH'];
@@ -169,21 +169,29 @@ class InvoiceSDK
             if ($return->Data->dataDescription->zipCode[0] == 1) {
                 $content = gzdecode(base64_decode($return->Data->content[0]));
                 $pdf = simplexml_load_string($content);
+
                 return $pdf;
             }
         } else {
             //状态有误
             $res['code'] = $return->returnStateInfo->returnCode[0];
             $res['mssage'] = base64_decode($return->returnStateInfo->returnMessage[0]);
+
             return $res;
         }
     }
 
+    /**
+     * 发送邮件
+     *
+     * @param array $arr
+     * @return \SimpleXMLElement
+     */
     public function email(array $arr)
     {
 
         $len = strlen($arr['order_bn']);
-        $data['lsh'] = str_repeat('0', 20 - $len) . $arr['order_bn'];
+        $data['lsh'] = str_repeat('0', 20 - $len).$arr['order_bn'];
         $data['eamil'] = $arr['email'];
         $data['fp_dm'] = $arr['fp_dm'];
         $data['fp_hm'] = $arr['fp_hm'];
@@ -196,7 +204,7 @@ class InvoiceSDK
 
         $return = simplexml_load_string($response);
 
-        
+
         if ($return->returnStateInfo->returnCode[0] == '0000') {
             //修改状态
             return $return;
@@ -204,10 +212,5 @@ class InvoiceSDK
             echo "\n INVOICE INFO ERROR EMAIL \t {$return->returnStateInfo->returnCode[0]}\t";
         }
 
-
     }
-
-
-
-
 }

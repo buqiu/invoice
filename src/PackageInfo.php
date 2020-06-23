@@ -1,13 +1,12 @@
 <?php
 /**
- * Created by PhpStorm.
- * User: JV
- * Date: 2017/5/29
- * Time: 10:35
+ * Name: 发票包信息.
+ * User: 董坤鸿
+ * Date: 2020/06/23
+ * Time: 14:19
  */
 
-namespace invoice\src;
-
+namespace Buqiu\Invoice;
 
 class PackageInfo
 {
@@ -17,7 +16,7 @@ class PackageInfo
 
     public static function getInstance()
     {
-        if(self::$_instance == null){
+        if (self::$_instance == null) {
             self::$config = include "config.php";
             self::$_instance = new self();
         }
@@ -29,9 +28,9 @@ class PackageInfo
      * @param $interface
      * @return string
      */
-    public function getXml(string $interface,string $content)
+    public function getXml(string $interface, string $content)
     {
-        $rand = rand(1000000000,9999999999);
+        $rand = rand(1000000000, 9999999999);
 
         $terminalcode = self::$config['TERMINALCODE'];
         $appid = self::$config['APPID'];
@@ -40,7 +39,7 @@ class PackageInfo
         $taxpayerid = self::$config['TAXPAYWERID'];
         $authorizationcode = self::$config['AUTHORIZATIONCODE'];
         $response = self::$config['RESPONSECODE'];
-        $dataexchangeid = self::$config['DSPTBM'].$interface.date('Ymd').substr($rand,0,9);
+        $dataexchangeid = self::$config['DSPTBM'].$interface.date('Ymd').substr($rand, 0, 9);
         $str = <<<XML
 <?xml version="1.0" encoding="utf-8"?>
 <interface xmlns="" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -91,35 +90,35 @@ XML;
     {
         $config = self::$config;
         $fpkj = '';
-        foreach ($this->content_0($config) as $key => $item){
-            if($item['text']!==''){
+        foreach ($this->content_0($config) as $key => $item) {
+            if ($item['text'] !== '') {
                 $fpkj .= '<'.strtoupper($item['key']).'>'.$item['text'].'</'.$item['key'].'>';
-            }else{
+            } else {
                 $fpkj .= '<'.strtoupper($item['key']).'>'.$arr[$item['key']].'</'.$item['key'].'>';
             }
         }
 
         $xm_size = count($arr['items']);
         $fpkj_xm = '';
-        foreach ($arr['items'] as $num => $value){
+        foreach ($arr['items'] as $num => $value) {
             $fpkj_xm .= '<FPKJXX_XMXX>';
-            foreach ($this->content_1($config) as $key=>$item){
-                if($item['text']!==''){
+            foreach ($this->content_1($config) as $key => $item) {
+                if ($item['text'] !== '') {
                     $fpkj_xm .= '<'.strtoupper($item['key']).'>'.$item['text'].'</'.$item['key'].'>';
-                }else{
+                } else {
                     $fpkj_xm .= '<'.strtoupper($item['key']).'>'.$value[$item['key']].'</'.$item['key'].'>';
                 }
             }
             $fpkj_xm .= '</FPKJXX_XMXX>';
             //津贴被折扣行
-            if(isset($value['discount'])){
+            if (isset($value['discount'])) {
                 //size对应
                 $xm_size++;
                 $fpkj_xm .= '<FPKJXX_XMXX>';
-                foreach ($this->content_1($config) as $key=>$item){
-                    if($item['text']!==''){
+                foreach ($this->content_1($config) as $key => $item) {
+                    if ($item['text'] !== '') {
                         $fpkj_xm .= '<'.strtoupper($item['key']).'>'.$item['text'].'</'.$item['key'].'>';
-                    }else{
+                    } else {
                         $fpkj_xm .= '<'.strtoupper($item['key']).'>'.$value['discount'][$item['key']].'</'.$item['key'].'>';
                     }
                 }
@@ -127,11 +126,11 @@ XML;
             }
         }
         $fpkj_dd = '';
-        foreach ($this->content_2() as $key=>$item){
-            if($item['text']!==''){
+        foreach ($this->content_2() as $key => $item) {
+            if ($item['text'] !== '') {
                 $fpkj_dd .= '<'.strtoupper($item['key']).'>'.$item['text'].'</'.$item['key'].'>';
-            }else{
-                if($item['text']===null){
+            } else {
+                if ($item['text'] === null) {
                     $fpkj_dd .= '<'.strtoupper($item['key']).'/>';
                     continue;
                 }
@@ -163,7 +162,8 @@ ROOT;
     public function XML2array(string $xml)
     {
         $arr = simplexml_load_string($xml);
-        $arr = json_decode(json_encode($arr),TRUE);
+        $arr = json_decode(json_encode($arr), true);
+
         return $arr;
     }
 
@@ -171,11 +171,11 @@ ROOT;
     {
         $content = '';
 
-        foreach ($this->download(self::$config) as $key => $item){
-            if($item['text']!==''){
+        foreach ($this->download(self::$config) as $key => $item) {
+            if ($item['text'] !== '') {
                 $content .= '<'.strtoupper($item['key']).'>'.$item['text'].'</'.$item['key'].'>';
-            }else{
-                if($item['text']===null){
+            } else {
+                if ($item['text'] === null) {
                     $content .= '<'.strtoupper($item['key']).'/>';
                     continue;
                 }
@@ -260,122 +260,122 @@ ROOT;
      */
     private function content_0($config)
     {
-        return  [
-            'FPQQLSH'=>[
-                'key'=>'FPQQLSH',
-                'text'=>'',
-                'comment'=>'请求流水号'
+        return [
+            'FPQQLSH' => [
+                'key' => 'FPQQLSH',
+                'text' => '',
+                'comment' => '请求流水号',
             ],
-            'DSPTBM'=>[
-                'key'=>'DSPTBM',
-                'text'=>$config['DSPTBM'],
-                'comment'=>'平台编码'
+            'DSPTBM' => [
+                'key' => 'DSPTBM',
+                'text' => $config['DSPTBM'],
+                'comment' => '平台编码',
             ],
-            'NSRSBH'=>[
-                'key'=>'NSRSBH',
-                'text'=>$config['NSRSBH'],
-                'comment'=>'开票方识别号'
+            'NSRSBH' => [
+                'key' => 'NSRSBH',
+                'text' => $config['NSRSBH'],
+                'comment' => '开票方识别号',
             ],
-            'NSRMC'=>[
-                'key'=>'NSRMC',
-                'text'=>$config['NSRMC'],
-                'comment'=>'开票方名称'
+            'NSRMC' => [
+                'key' => 'NSRMC',
+                'text' => $config['NSRMC'],
+                'comment' => '开票方名称',
             ],
-            'DKBZ'=>[
-                'key'=>'DKBZ',
-                'text'=>'0'
+            'DKBZ' => [
+                'key' => 'DKBZ',
+                'text' => '0',
             ],
-            'KPXM'=>[
-                'key'=>'KPXM',
-                'text'=>'',
-                'comment'=>'商品信息中第一条'
+            'KPXM' => [
+                'key' => 'KPXM',
+                'text' => '',
+                'comment' => '商品信息中第一条',
             ],
-            'BMB_BBH'=>[
-                'key'=>'BMB_BBH',
-                'text'=>'1.0'
+            'BMB_BBH' => [
+                'key' => 'BMB_BBH',
+                'text' => '1.0',
             ],
-            'XHF_NSRSBH'=>[
-                'key'=>'XHF_NSRSBH',
-                'text'=>$config['NSRSBH'],
-                'comment'=>'销方识别码'
+            'XHF_NSRSBH' => [
+                'key' => 'XHF_NSRSBH',
+                'text' => $config['NSRSBH'],
+                'comment' => '销方识别码',
             ],
-            'XHFMC'=>[
-                'key'=>'XHFMC',
-                'text'=>$config['NSRMC'],
-                'comment'=>'销方名称'
+            'XHFMC' => [
+                'key' => 'XHFMC',
+                'text' => $config['NSRMC'],
+                'comment' => '销方名称',
             ],
-            'XHF_DZ'=>[
-                'key'=>'XHF_DZ',
-                'text'=>$config['XHF_DZ'],
-                'comment'=>'销方地址'
+            'XHF_DZ' => [
+                'key' => 'XHF_DZ',
+                'text' => $config['XHF_DZ'],
+                'comment' => '销方地址',
             ],
-            'XHF_DH'=>[
-                'key'=>'XHF_DH',
-                'text'=>$config['XHF_DH'],
-                'comment'=>'销方电话'
+            'XHF_DH' => [
+                'key' => 'XHF_DH',
+                'text' => $config['XHF_DH'],
+                'comment' => '销方电话',
             ],
-            'XHF_YHZH'=>[
-                'key'=>'XHF_YHZH',
-                'text'=>$config['XHF_YHZH'],
-                'comment'=>'销方银行账号'
+            'XHF_YHZH' => [
+                'key' => 'XHF_YHZH',
+                'text' => $config['XHF_YHZH'],
+                'comment' => '销方银行账号',
             ],
-            'GHFMC'=>[
-                'key'=>'GHFMC',
-                'text'=>'',
-                'comment'=>'购货方名称'
+            'GHFMC' => [
+                'key' => 'GHFMC',
+                'text' => '',
+                'comment' => '购货方名称',
             ],
-            'GHF_SJ'=>[
-                'key'=>'GHF_SJ',
-                'text'=>'',
-                'comment'=>'购货方手机'
+            'GHF_SJ' => [
+                'key' => 'GHF_SJ',
+                'text' => '',
+                'comment' => '购货方手机',
             ],
             //01-企业 02-机关事业单位 03-个人  04-其他
-            'GHFQYLX'=>[
-                'key'=>'GHFQYLX',
-                'text'=>'',
-                'comment'=>'购货方名称'
+            'GHFQYLX' => [
+                'key' => 'GHFQYLX',
+                'text' => '',
+                'comment' => '购货方名称',
             ],
-            'SKY'=>[
-                'key'=>'SKY',
-                'text'=>$config['SKY'],
+            'SKY' => [
+                'key' => 'SKY',
+                'text' => $config['SKY'],
             ],
-            'KPY'=>[
-                'key'=>'KPY',
-                'text'=>$config['KPY'],
+            'KPY' => [
+                'key' => 'KPY',
+                'text' => $config['KPY'],
             ],
             //1 正票  2 红票
-            'KPLX'=>[
-                'key'=>'KPLX',
-                'text'=>'',
-                'comment'=>'开票类型'
+            'KPLX' => [
+                'key' => 'KPLX',
+                'text' => '',
+                'comment' => '开票类型',
             ],
             //10 正票正常开具 11 正票错票重开 20 退货折让红票 21 错票重开红票 22 换票冲红（全冲红电子发票,开具纸质发票）
-            'CZDM'=>[
-                'key'=>'CZDM',
-                'text'=>'',
-                'comment'=>'操作代码'
+            'CZDM' => [
+                'key' => 'CZDM',
+                'text' => '',
+                'comment' => '操作代码',
             ],
-            'QD_BZ'=>[
-                'key'=>'QD_BZ',
-                'text'=>'0'
+            'QD_BZ' => [
+                'key' => 'QD_BZ',
+                'text' => '0',
             ],
             //小数点后2位 以元为单位精确到分  double
-            'KPHJJE'=>[
-                'key'=>'KPHJJE',
-                'text'=>'',
-                'comment'=>'价税合计金额'
+            'KPHJJE' => [
+                'key' => 'KPHJJE',
+                'text' => '',
+                'comment' => '价税合计金额',
             ],
             //double
-            'HJBHSJE'=>[
-                'key'=>'HJBHSJE',
-                'text'=>'',
-                'comment'=>'合计不含税金额'
+            'HJBHSJE' => [
+                'key' => 'HJBHSJE',
+                'text' => '',
+                'comment' => '合计不含税金额',
             ],
-            'HJSE'=>[
-                'key'=>'HJSE',
-                'text'=>'',
-                'comment'=>'合计税额'
-            ]
+            'HJSE' => [
+                'key' => 'HJSE',
+                'text' => '',
+                'comment' => '合计税额',
+            ],
         ];
     }
 
@@ -387,54 +387,54 @@ ROOT;
     private function content_1(array $config)
     {
         return [
-            'XMMC'=>[
-                'key'=>'XMMC',
-                'text'=>'',
-                'comment'=>'项目名称'
+            'XMMC' => [
+                'key' => 'XMMC',
+                'text' => '',
+                'comment' => '项目名称',
             ],
-            'XMSL'=>[
-                'key'=>'XMSL',
-                'text'=>'',
-                'comment'=>'项目数量'
+            'XMSL' => [
+                'key' => 'XMSL',
+                'text' => '',
+                'comment' => '项目数量',
             ],
-            'HSBZ'=>[
-                'key'=>'HSBZ',
-                'text'=>'',
-                'comment'=>'含税标志'
+            'HSBZ' => [
+                'key' => 'HSBZ',
+                'text' => '',
+                'comment' => '含税标志',
             ],
-            'FPHXZ'=>[
-                'key'=>'FPHXZ',
-                'text'=>'',
+            'FPHXZ' => [
+                'key' => 'FPHXZ',
+                'text' => '',
             ],
             //小数点后8位小数
-            'XMDJ'=>[
-                'key'=>'XMDJ',
-                'text'=>''
+            'XMDJ' => [
+                'key' => 'XMDJ',
+                'text' => '',
             ],
-            'SPBM'=>[
-                'key'=>'SPBM',
-                'text'=>''
+            'SPBM' => [
+                'key' => 'SPBM',
+                'text' => '',
             ],
-            'ZXBM'=>[
-                'key'=>'ZXBM',
-                'text'=>''
+            'ZXBM' => [
+                'key' => 'ZXBM',
+                'text' => '',
             ],
-            'YHZCBS'=>[
-                'key'=>'YHZCBS',
-                'text'=>'0',
-                'comment'=>'优惠政策标识'
+            'YHZCBS' => [
+                'key' => 'YHZCBS',
+                'text' => '0',
+                'comment' => '优惠政策标识',
             ],
             //小数点后2位
-            'XMJE'=>[
-                'key'=>'XMJE',
-                'text'=>'',
-                'comment'=>'项目金额'
+            'XMJE' => [
+                'key' => 'XMJE',
+                'text' => '',
+                'comment' => '项目金额',
             ],
             //税率
-            'SL'=>[
-                'key'=>'SL',
-                'text'=>'',
-                'comment'=>'税率'
+            'SL' => [
+                'key' => 'SL',
+                'text' => '',
+                'comment' => '税率',
             ],
         ];
     }
@@ -445,14 +445,14 @@ ROOT;
     private function content_2()
     {
         return [
-            'DDH'=>[
-                'key'=>'DDH',
-                'text'=>''
+            'DDH' => [
+                'key' => 'DDH',
+                'text' => '',
             ],
-            'DDDATE'=>[
-                'key'=>'DDDATE',
-                'text'=>null,
-            ]
+            'DDDATE' => [
+                'key' => 'DDDATE',
+                'text' => null,
+            ],
         ];
     }
 
@@ -463,26 +463,26 @@ ROOT;
     private function download(array $config)
     {
         return [
-            'DDH'=>[
-                'key'=>'DDH',
-                'text'=>'',
+            'DDH' => [
+                'key' => 'DDH',
+                'text' => '',
             ],
-            'FPQQLSH'=>[
-                'key'=>'FPQQLSH',
-                'text'=>''
+            'FPQQLSH' => [
+                'key' => 'FPQQLSH',
+                'text' => '',
             ],
-            'DSPTBM'=>[
-                'key'=>'DSPTBM',
-                'text'=>$config['DSPTBM'],
+            'DSPTBM' => [
+                'key' => 'DSPTBM',
+                'text' => $config['DSPTBM'],
             ],
-            'NSRSBH'=>[
-                'key'=>'NSRSBH',
-                'text'=>$config['NSRSBH'],
+            'NSRSBH' => [
+                'key' => 'NSRSBH',
+                'text' => $config['NSRSBH'],
             ],
-            'PDF_XZFS'=>[
-                'key'=>'PDF_XZFS',
-                'text'=>'3'  //0-发票状态查询 1-pdf文件
-            ]
+            'PDF_XZFS' => [
+                'key' => 'PDF_XZFS',
+                'text' => '3'  //0-发票状态查询 1-pdf文件
+            ],
         ];
     }
 
@@ -493,21 +493,24 @@ ROOT;
     public function email(array $config)
     {
         return [
-            'TSFS'=>'',
-            'EMAIL'=>'',
-            'FPQQLSH'=>'',
-            'NSRSBH'=>$config['NSRSBH'],
-            'FP_DM'=>'',
-            'FP_HM'=>''
+            'TSFS' => '',
+            'EMAIL' => '',
+            'FPQQLSH' => '',
+            'NSRSBH' => $config['NSRSBH'],
+            'FP_DM' => '',
+            'FP_HM' => '',
         ];
     }
 
-    private function udate($utimestamp = null) {
-        if (is_null($utimestamp))
+    private function udate($utimestamp = null)
+    {
+        if (is_null($utimestamp)) {
             $utimestamp = microtime(true);
+        }
 
         $timestamp = floor($utimestamp);
         $milliseconds = round(($utimestamp - $timestamp) * 100);
+
         return $milliseconds;
     }
 }
