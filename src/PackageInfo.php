@@ -14,15 +14,11 @@ class PackageInfo
 
     private static $config = [];
 
-    public static function getInstance()
+    public function __construct($config)
     {
-        if (self::$_instance == null) {
-            self::$config = include "config.php";
-            self::$_instance = new self();
-        }
-
-        return self::$_instance;
+        self::$config = $config;
     }
+
 
     /***
      * @param $interface
@@ -31,6 +27,7 @@ class PackageInfo
     public function getXml(string $interface, string $content)
     {
         $rand = rand(1000000000, 9999999999);
+        self::$config = self::$config;
 
         $terminalcode = self::$config['TERMINALCODE'];
         $appid = self::$config['APPID'];

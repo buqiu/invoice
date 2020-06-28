@@ -8,6 +8,8 @@
 
 namespace Buqiu\Invoice;
 
+use Buqiu\Invoice\PackageInfo;
+
 class InvoiceSDK
 {
     const KJFP = 'ECXML.FPKJ.BC.E_INV';
@@ -15,10 +17,20 @@ class InvoiceSDK
     const EMAIL = 'ECXML.EMAILPHONEFPTS.TS.E.INV';
     const HOST = 'http://fw2test.shdzfp.com:15002/sajt-shdzfp-sl-http/SvrServlet';
 
+    private static $config = [];
+    private $packageInfo = '';
+
+    public function __construct($config)
+    {
+        self::$config = $config;
+        $this->packageInfo = new PackageInfo($config);
+    }
+
     /***
+     * 开具发票
+     *
      * @param array $arr
      * @return \SimpleXMLElement
-     * 开具发票
      */
     public function create(array $arr)
     {
@@ -80,9 +92,8 @@ class InvoiceSDK
         $data['KPLX'] = $arr['KPLX'];
         $data['CZDM'] = $arr['CZDM'];
 
-        $content = PackageInfo::getInstance()->getContent($data);
-
-        $xml = PackageInfo::getInstance()->getXml(self::KJFP, $content);
+        $content = $this->packageInfo->getContent($data);
+        $xml = $this->packageInfo->getXml(self::KJFP, $content);
 
         $response = $this->postCurl(self::HOST, $xml);
         $content = simplexml_load_string($response);
@@ -157,8 +168,8 @@ class InvoiceSDK
         $data['DDH'] = $arr['order_bn'];
         $data['FPQQLSH'] = $arr['FPQQLSH'];
 
-        $content = PackageInfo::getInstance()->getDownload($data);
-        $xml = PackageInfo::getInstance()->getXml(self::DOWNLOAD, $content);
+        $content = $this->packageInfo->getDownload($data);
+        $xml = $this->packageInfo->getXml(self::DOWNLOAD, $content);
 
         $response = $this->postCurl(self::HOST, $xml);
 
@@ -197,8 +208,8 @@ class InvoiceSDK
         $data['fp_hm'] = $arr['fp_hm'];
         $data['FPQQLSH'] = $arr['FPQQLSH'];
 
-        $content = PackageInfo::getInstance()->getEmail($data);
-        $xml = PackageInfo::getInstance()->getXml(self::EMAIL, $content);
+        $content = $this->packageInfo->getEmail($data);
+        $xml = $this->packageInfo->getXml(self::EMAIL, $content);
 
         $response = $this->postCurl(self::HOST, $xml);
 
