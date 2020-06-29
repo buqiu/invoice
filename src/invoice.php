@@ -9,8 +9,8 @@
 return [
     'DSPTBM' => '电商平台编码',
     'NSRSBH' => '纳税人识别码',
-    'NSRMC'  => '纳税人名称',
-    'XHFMC'  => '销货方名称',
+    'NSRMC' => '纳税人名称',
+    'XHFMC' => '销货方名称',
     'XHF_DZ' => '销货方地址',
     'XHF_DH' => '销货方电话',
     'XHF_YHZH' => '销货方银行账号',
@@ -21,7 +21,7 @@ return [
     'APPID' => 'ZZS_PT_DZFP',
     'TAXPAYWERID' => '税号',
     'AUTHORIZATIONCODE' => '认证码',
-    'ENCRYPTCODE' =>'加密码',
+    'ENCRYPTCODE' => '加密码',
     'INTERFACE_FPKJ' => 'ECXML.FPKJ.BC.E_INV',
     'INTERFACE_FPXZ' => 'ECXML.FPXZ.CX.E_INV',
     'INTERFACE_FPYX' => 'ECXML.EMAILPHONEFPTS.TS.E.INV',
@@ -34,4 +34,3 @@ return [
     'EMAIL' => 'ECXML.EMAILPHONEFPTS.TS.E.INV',
     'REGISTERCODE' => '注册码',
 ];
-
