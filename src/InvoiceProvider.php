@@ -24,7 +24,7 @@ class InvoiceProvider extends ServiceProvider
         //发布配置文件到项目的 config 目录中
         $this->publishes(
             [
-                __DIR__.'/invoice.php' => config_path('invoice.php'),
+                __DIR__.'/config/invoice.php' => config_path('invoice.php'),
             ]
         );
     }
@@ -34,6 +34,8 @@ class InvoiceProvider extends ServiceProvider
      */
     public function register()
     {
-
+        $this->app->singleton('avatar', function ($app) {
+            return new InvoiceSDK($app['config']);
+        });
     }
 }
