@@ -12,7 +12,13 @@ use Illuminate\Support\ServiceProvider;
 
 class InvoiceProvider extends ServiceProvider
 {
-    protected $defer = true;
+    /**
+     * 指示是否推迟提供程序的加载
+     * Indicates if loading of the provider is deferred.
+     *
+     * @var bool
+     */
+    protected $defer = false;
 
     /**
      * 服务引导方法
@@ -21,11 +27,14 @@ class InvoiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        //发布配置文件到项目的 config 目录中
+        // Config path.
+        $config_path = __DIR__.'/config/invoice.php';
+
+        // 发布配置文件到项目的 config 目录中.
         $this->publishes(
-            [
-                __DIR__.'/config/invoice.php' => config_path('invoice.php'),
-            ]
+
+            [$config_path => config_path('invoice.php')],
+            'invoice'
         );
     }
 
@@ -34,8 +43,16 @@ class InvoiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->app->singleton('avatar', function ($app) {
+        $this->app->singleton('invoice', function ($app) {
             return new InvoiceSDK($app['config']);
         });
+        // Config path.
+        $config_path = __DIR__.'/config/invoice.php';
+
+        // 发布配置文件到项目的 config 目录中.
+        $this->mergeConfigFrom(
+            $config_path,
+            'repositories'
+        );
     }
 }
