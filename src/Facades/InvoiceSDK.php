@@ -15,6 +15,6 @@ class InvoiceSDK extends Facade
 {
     protected static function getFacadeAccessor()
     {
-        return 'invoiceSDK';
+        return 'InvoiceSDK';
     }
 }
