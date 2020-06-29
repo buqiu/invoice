@@ -13,14 +13,6 @@ use Illuminate\Support\ServiceProvider;
 class InvoiceProvider extends ServiceProvider
 {
     /**
-     * 指示是否推迟提供程序的加载
-     * Indicates if loading of the provider is deferred.
-     *
-     * @var bool
-     */
-    protected $defer = false;
-
-    /**
      * 服务引导方法
      *
      * @return void
@@ -48,7 +40,7 @@ class InvoiceProvider extends ServiceProvider
         // 发布配置文件到项目的 config 目录中.
         $this->mergeConfigFrom(
             $config_path,
-            'repositories'
+            'invoice'
         );
     }
 }
