@@ -8,7 +8,9 @@
 
 namespace Buqiu\Invoice;
 
-class ServiceProvider extends \Illuminate\Support\ServiceProvider
+use Illuminate\Support\ServiceProvider;
+
+class InvoiceProvider extends ServiceProvider
 {
     protected $defer = true;
 
