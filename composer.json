@@ -1,33 +1,33 @@
 {
-  "name": "buqiu/invoice",
-  "description": "上海航天信息电子发票对接平台",
-  "type": "library",
-  "license": "MIT",
-  "authors": [
-    {
-      "name": "董坤鸿",
-      "email": "249529979@qq.com"
+    "name": "buqiu/invoice",
+    "description": "上海航天信息电子发票对接平台",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "董坤鸿",
+            "email": "249529979@qq.com"
+        }
+    ],
+    "require": {
+        "php": ">=7.2.0",
+        "illuminate/support": "^5.5|^6.0|^7.0|^8.0",
+        "illuminate/database": "^5.5|^6.0|^7.0|^8.0",
+        "illuminate/filesystem": "^5.5|^6.0|^7.0|^8.0",
+        "illuminate/console": "^5.5|^6.0|^7.0|^8.0"
+    },
+    "minimum-stability": "stable",
+    "autoload": {
+        "files": [],
+        "psr-4": {
+            "Buqiu\\Invoice\\": "src"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Buqiu\\Invoice\\InvoiceProvider"
+            ]
+        }
     }
-  ],
-  "require": {
-    "php": ">=7.0.0",
-    "illuminate/support": "^5.5|^6.0|^7.0|^8.0",
-    "illuminate/database": "^5.5|^6.0|^7.0|^8.0",
-    "illuminate/filesystem": "^5.5|^6.0|^7.0|^8.0",
-    "illuminate/console": "^5.5|^6.0|^7.0|^8.0"
-  },
-  "minimum-stability": "stable",
-  "autoload": {
-    "files": [],
-    "psr-4": {
-      "Buqiu\\Invoice\\": "src"
-    }
-  },
-  "extra": {
-    "laravel": {
-      "providers": [
-        "Buqiu\\Invoice\\InvoiceProvider"
-      ]
-    }
-  }
 }

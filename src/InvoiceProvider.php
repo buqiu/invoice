@@ -13,7 +13,16 @@ use Illuminate\Support\ServiceProvider;
 class InvoiceProvider extends ServiceProvider
 {
     /**
-     * 服务引导方法
+     * 指示是否推迟提供程序的加载
+     * Indicates if loading of the provider is deferred.
+     *
+     * @var bool
+     */
+    protected $defer = fasle;
+
+    /**
+     * 引导应用程序服务
+     * Bootstrap the application services.
      *
      * @return void
      */
@@ -30,7 +39,10 @@ class InvoiceProvider extends ServiceProvider
     }
 
     /**
-     * 注册服务
+     * 注册应用程序服务
+     * Register the application services.
+     *
+     * @return void
      */
     public function register()
     {
