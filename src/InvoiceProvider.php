@@ -18,10 +18,11 @@ class InvoiceProvider extends ServiceProvider
      *
      * @var bool
      */
-    protected $defer = false;
+    protected $defer = fasle;
 
     /**
-     * 服务引导方法
+     * 引导应用程序服务
+     * Bootstrap the application services.
      *
      * @return void
      */
@@ -39,7 +40,10 @@ class InvoiceProvider extends ServiceProvider
     }
 
     /**
-     * 注册服务
+     * 注册应用程序服务
+     * Register the application services.
+     *
+     * @return void
      */
     public function register()
     {
@@ -52,7 +56,7 @@ class InvoiceProvider extends ServiceProvider
         // 发布配置文件到项目的 config 目录中.
         $this->mergeConfigFrom(
             $config_path,
-            'invoices'
+            'invoice'
         );
     }
 }
