@@ -11,10 +11,10 @@ namespace Buqiu\Invoice\Facades;
 
 use Illuminate\Support\Facades\Facade;
 
-class InvoiceSDK extends Facade
+class InvoiceSdkFacade extends Facade
 {
     protected static function getFacadeAccessor()
     {
-        return 'InvoiceSDK';
+        return 'invoice';
     }
 }

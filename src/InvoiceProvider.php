@@ -52,7 +52,7 @@ class InvoiceProvider extends ServiceProvider
         // 发布配置文件到项目的 config 目录中.
         $this->mergeConfigFrom(
             $config_path,
-            'repositories'
+            'invoices'
         );
     }
 }
