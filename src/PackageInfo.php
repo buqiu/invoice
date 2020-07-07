@@ -52,9 +52,9 @@ class PackageInfo
         <responseCode>121</responseCode>
         <dataExchangeId>{$dataexchangeid}</dataExchangeId>
         <userName>{$dsptbm}</userName>
-        <passWord></passWord>
+        <passWord/>
         <taxpayerId>{$taxpayerid}</taxpayerId>
-        <authorizationCode>NH873FG4KW</authorizationCode>
+        <authorizationCode>{$authorizationcode}</authorizationCode>
     </globalInfo>
     <returnStateInfo>
         <returnCode />
@@ -63,8 +63,8 @@ class PackageInfo
     <Data>
         <dataDescription>
             <zipCode>0</zipCode>
-            <encryptCode>0</encryptCode>
-            <codeType>0</codeType>
+            <encryptCode>1</encryptCode>
+            <codeType>3DES</codeType>
         </dataDescription>
         <content>
         {$content}
@@ -134,7 +134,6 @@ XML;
                 $fpkj_dd .= '<'.strtoupper($item['key']).'>'.$arr[$item['key']].'</'.$item['key'].'>';
             }
         }
-//dd($arr ,$fpkj,$fpkj_xm,$fpkj_dd);
         $root = <<<ROOT
 <REQUEST_FPKJXX class="REQUEST_FPKJXX">
     <FPKJXX_FPTXX class="FPKJXX_FPTXX">
@@ -149,7 +148,8 @@ XML;
 </REQUEST_FPKJXX>
 ROOT;
 
-        return base64_encode($root);
+        return openssl_encrypt($root, "DES-EDE3", str_pad(self::$config['KEY'], 24, '0'), 0);
+
     }
 
     /***
@@ -186,7 +186,7 @@ ROOT;
 </REQUEST_FPXXXZ_NEW>
 ROOT;
 
-        return base64_encode($root);
+        return openssl_encrypt($root, "DES-EDE3", str_pad(self::$config['KEY'], 24, '0'), 0);
     }
 
     /***
@@ -248,7 +248,7 @@ ROOT;
 </REQUEST_EMAILPHONEFPTS>
 ROOT;
 
-        return base64_encode($root);
+        return openssl_encrypt($root, "DES-EDE3", str_pad(self::$config['KEY'], 24, '0'), 0);
     }
 
     /***

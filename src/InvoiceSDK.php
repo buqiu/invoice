@@ -15,14 +15,17 @@ class InvoiceSDK
     const KJFP = 'ECXML.FPKJ.BC.E_INV';
     const DOWNLOAD = 'ECXML.FPMXXZ.CX.E_INV';
     const EMAIL = 'ECXML.EMAILPHONEFPTS.TS.E.INV';
-    const HOST = 'http://fw2test.shdzfp.com:15002/sajt-shdzfp-sl-http/SvrServlet';
 
     private static $config = [];
+    private static $host = '';
+    private static $key = '';
     private $packageInfo = '';
 
     public function __construct($config)
     {
         self::$config = $config;
+        self::$host = $config['HOST'];
+        self::$key = $config['KEY'];
         $this->packageInfo = new PackageInfo($config);
     }
 
@@ -60,12 +63,12 @@ class InvoiceSDK
                 $items[$key]['FPHXZ'] = 2;
                 $items[$key]['discount'] = [
                     'XMMC' => $show_name,
-                    'XMSL' => '-'.sprintf('%.8f', 1),
+                    'XMSL' => '-' . sprintf('%.8f', 1),
                     'FPHXZ' => '1',
                     'XMDJ' => sprintf('%.8f', $arr['discount']),
                     'SPBM' => $item['spbm'],
                     'ZXBM' => $item['id'],
-                    'XMJE' => '-'.sprintf('%.2f', $arr['discount']),
+                    'XMJE' => '-' . sprintf('%.2f', $arr['discount']),
                     'SL' => $item['sl'],
                     'HSBZ' => $item['hsbz'],
                 ];
@@ -95,7 +98,7 @@ class InvoiceSDK
         $content = $this->packageInfo->getContent($data);
         $xml = $this->packageInfo->getXml(self::KJFP, $content);
 
-        $response = $this->postCurl(self::HOST, $xml);
+        $response = $this->postCurl(self::$host, $xml);
         $content = simplexml_load_string($response);
 
         return $content;
@@ -123,7 +126,7 @@ class InvoiceSDK
         if (is_array($headerArr) && !empty($headerArr)) {
             $queryHeaders = array();
             foreach ($headerArr as $k => $v) {
-                $queryHeaders[] = $k.':'.$v;
+                $queryHeaders[] = $k . ':' . $v;
             }
             //print_r($queryHeaders);
             $headers = array_merge($headers, $queryHeaders);
@@ -163,7 +166,7 @@ class InvoiceSDK
     public function download(array $arr)
     {
         $len = strlen($arr['order_bn']);
-        $data['lsh'] = str_repeat('0', 20 - $len).$arr['order_bn'];
+        $data['lsh'] = str_repeat('0', 20 - $len) . $arr['order_bn'];
         $data['PDF_XZFS'] = 3;
         $data['DDH'] = $arr['order_bn'];
         $data['FPQQLSH'] = $arr['FPQQLSH'];
@@ -171,7 +174,7 @@ class InvoiceSDK
         $content = $this->packageInfo->getDownload($data);
         $xml = $this->packageInfo->getXml(self::DOWNLOAD, $content);
 
-        $response = $this->postCurl(self::HOST, $xml);
+        $response = $this->postCurl(self::$host, $xml);
 
         $return = simplexml_load_string($response);
 
@@ -179,8 +182,8 @@ class InvoiceSDK
             //PDF_XZFS 1 是pdf内容 必然要解压
             if ($return->Data->dataDescription->zipCode[0] == 1) {
                 $content = gzdecode(base64_decode($return->Data->content[0]));
-                $pdf = simplexml_load_string($content);
-
+                $rs = openssl_decrypt($content, "des-ede3", str_pad(self::$key, 24, '0'), 1);
+                $pdf = simplexml_load_string($rs);
                 return $pdf;
             }
         } else {
@@ -202,7 +205,7 @@ class InvoiceSDK
     {
 
         $len = strlen($arr['order_bn']);
-        $data['lsh'] = str_repeat('0', 20 - $len).$arr['order_bn'];
+        $data['lsh'] = str_repeat('0', 20 - $len) . $arr['order_bn'];
         $data['eamil'] = $arr['email'];
         $data['fp_dm'] = $arr['fp_dm'];
         $data['fp_hm'] = $arr['fp_hm'];
@@ -211,7 +214,7 @@ class InvoiceSDK
         $content = $this->packageInfo->getEmail($data);
         $xml = $this->packageInfo->getXml(self::EMAIL, $content);
 
-        $response = $this->postCurl(self::HOST, $xml);
+        $response = $this->postCurl(self::$host, $xml);
 
         $return = simplexml_load_string($response);
 

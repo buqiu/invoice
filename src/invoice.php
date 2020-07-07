@@ -59,4 +59,8 @@ return [
     'EMAIL' => 'ECXML.EMAILPHONEFPTS.TS.E.INV',
     // 注册码
     'REGISTERCODE' => '注册码',
+    // 电子发票网址
+    'HOST' => '电子发票网址',
+    // 3DES密码
+    'KEY' => '3DES密码',
 ];
