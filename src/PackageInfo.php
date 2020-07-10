@@ -326,6 +326,11 @@ ROOT;
                 'text' => '',
                 'comment' => '购货方手机',
             ],
+            'GHF_NSRSBH' => [
+                'key' => 'GHF_NSRSBH',
+                'text' => '',
+                'comment' => '购货方识别号',
+            ],
             //01-企业 02-机关事业单位 03-个人  04-其他
             'GHFQYLX' => [
                 'key' => 'GHFQYLX',
@@ -338,6 +343,10 @@ ROOT;
             ],
             'KPY' => [
                 'key' => 'KPY',
+                'text' => $config['KPY'],
+            ],
+            'FHR' => [
+                'key' => 'FHR',
                 'text' => $config['KPY'],
             ],
             //1 正票  2 红票
@@ -499,6 +508,10 @@ ROOT;
         ];
     }
 
+    /**
+     * @param null $utimestamp
+     * @return float
+     */
     private function udate($utimestamp = null)
     {
         if (is_null($utimestamp)) {

@@ -63,12 +63,12 @@ class InvoiceSDK
                 $items[$key]['FPHXZ'] = 2;
                 $items[$key]['discount'] = [
                     'XMMC' => $show_name,
-                    'XMSL' => '-' . sprintf('%.8f', 1),
+                    'XMSL' => '-'.sprintf('%.8f', 1),
                     'FPHXZ' => '1',
                     'XMDJ' => sprintf('%.8f', $arr['discount']),
                     'SPBM' => $item['spbm'],
                     'ZXBM' => $item['id'],
-                    'XMJE' => '-' . sprintf('%.2f', $arr['discount']),
+                    'XMJE' => '-'.sprintf('%.2f', $arr['discount']),
                     'SL' => $item['sl'],
                     'HSBZ' => $item['hsbz'],
                 ];
@@ -92,6 +92,7 @@ class InvoiceSDK
         $data['GHFMC'] = $arr['GHFMC'];
         $data['GHF_SJ'] = $arr['GHF_SJ'];
         $data['GHFQYLX'] = $arr['GHFQYLX'];
+        $data['GHF_NSRSBH'] = $arr['GHF_NSRSBH'];
         $data['KPLX'] = $arr['KPLX'];
         $data['CZDM'] = $arr['CZDM'];
 
@@ -126,7 +127,7 @@ class InvoiceSDK
         if (is_array($headerArr) && !empty($headerArr)) {
             $queryHeaders = array();
             foreach ($headerArr as $k => $v) {
-                $queryHeaders[] = $k . ':' . $v;
+                $queryHeaders[] = $k.':'.$v;
             }
             //print_r($queryHeaders);
             $headers = array_merge($headers, $queryHeaders);
@@ -166,7 +167,7 @@ class InvoiceSDK
     public function download(array $arr)
     {
         $len = strlen($arr['order_bn']);
-        $data['lsh'] = str_repeat('0', 20 - $len) . $arr['order_bn'];
+        $data['lsh'] = str_repeat('0', 20 - $len).$arr['order_bn'];
         $data['PDF_XZFS'] = 3;
         $data['DDH'] = $arr['order_bn'];
         $data['FPQQLSH'] = $arr['FPQQLSH'];
@@ -184,6 +185,7 @@ class InvoiceSDK
                 $content = gzdecode(base64_decode($return->Data->content[0]));
                 $rs = openssl_decrypt($content, "des-ede3", str_pad(self::$key, 24, '0'), 1);
                 $pdf = simplexml_load_string($rs);
+
                 return $pdf;
             }
         } else {
@@ -203,9 +205,8 @@ class InvoiceSDK
      */
     public function email(array $arr)
     {
-
         $len = strlen($arr['order_bn']);
-        $data['lsh'] = str_repeat('0', 20 - $len) . $arr['order_bn'];
+        $data['lsh'] = str_repeat('0', 20 - $len).$arr['order_bn'];
         $data['eamil'] = $arr['email'];
         $data['fp_dm'] = $arr['fp_dm'];
         $data['fp_hm'] = $arr['fp_hm'];
@@ -226,5 +227,6 @@ class InvoiceSDK
             echo "\n INVOICE INFO ERROR EMAIL \t {$return->returnStateInfo->returnCode[0]}\t";
         }
 
+        return $return;
     }
 }
