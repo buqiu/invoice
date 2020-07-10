@@ -347,7 +347,7 @@ ROOT;
             ],
             'FHR' => [
                 'key' => 'FHR',
-                'text' => $config['KPY'],
+                'text' => $config['FHR'],
             ],
             //1 正票  2 红票
             'KPLX' => [
