@@ -57,9 +57,12 @@ class InvoiceSDK
             $items[$key]['XMJE'] = sprintf('%.2f', $item['price'] * $item['quantity']);
             $items[$key]['SL'] = $item['sl'];
             $items[$key]['HSBZ'] = $item['hsbz'];
-
+            $items[$key]['YHZCBS'] = $item['yhzcbs'];
+            $items[$key]['ZZSTSGL'] = $item['zzstsgl'];
+            $items[$key]['LSLBS'] = $item['lslbs'];
 
             if ($arr['discount'] && $arr['discount'] != 0.00 && $key == 0) {
+
                 $items[$key]['FPHXZ'] = 2;
                 $items[$key]['discount'] = [
                     'XMMC' => $show_name,
@@ -79,6 +82,7 @@ class InvoiceSDK
                 $data['KPXM'] = $show_name; //kpxm
             }
         }
+
         $data['items'] = $items;
         $data['mobile'] = isset($arr['mobile']) ? $arr['mobile'] : '';
 
@@ -195,6 +199,8 @@ class InvoiceSDK
 
             return $res;
         }
+
+        return $return;
     }
 
     /**

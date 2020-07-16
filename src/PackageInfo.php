@@ -85,6 +85,7 @@ XML;
      */
     public function getContent(array $arr)
     {
+
         $config = self::$config;
         $fpkj = '';
         foreach ($this->content_0($config) as $key => $item) {
@@ -427,7 +428,7 @@ ROOT;
             ],
             'YHZCBS' => [
                 'key' => 'YHZCBS',
-                'text' => '0',
+                'text' => '',
                 'comment' => '优惠政策标识',
             ],
             //小数点后2位
@@ -441,6 +442,18 @@ ROOT;
                 'key' => 'SL',
                 'text' => '',
                 'comment' => '税率',
+            ],
+            //增值税特殊管理
+            'ZZSTSGL' => [
+                'key' => 'ZZSTSGL',
+                'text' => '',
+                'comment' => '增值税特殊管理',
+            ],
+            //零税率标识
+            'LSLBS' => [
+                'key' => 'LSLBS',
+                'text' => '',
+                'comment' => '零税率标识',
             ],
         ];
     }
