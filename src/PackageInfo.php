@@ -536,4 +536,19 @@ ROOT;
 
         return $milliseconds;
     }
+
+    /**
+     * @return false|string
+     */
+    public function getInvoiceNumber()
+    {
+        $config = self::$config;
+        $root = <<<ROOT
+<REQUEST_KYFPSL class="REQUEST_KYFPSL">
+    <NSRSBH>{$config['NSRSBH']}</NSRSBH>
+</REQUEST_KYFPSL>
+ROOT;
+
+        return openssl_encrypt($root, "DES-EDE3", str_pad(self::$config['KEY'], 24, '0'), 0);
+    }
 }
