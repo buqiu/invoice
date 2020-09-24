@@ -196,7 +196,7 @@ class InvoiceSDK
         } else {
             //状态有误
             $res['code'] = $return->returnStateInfo->returnCode[0];
-            $res['mssage'] = base64_decode($return->returnStateInfo->returnMessage[0]);
+            $res['message'] = base64_decode($return->returnStateInfo->returnMessage[0]);
 
             return $res;
         }
@@ -214,7 +214,7 @@ class InvoiceSDK
     {
         $len = strlen($arr['order_bn']);
         $data['lsh'] = str_repeat('0', 20 - $len).$arr['order_bn'];
-        $data['eamil'] = $arr['email'];
+        $data['email'] = $arr['email'];
         $data['fp_dm'] = $arr['fp_dm'];
         $data['fp_hm'] = $arr['fp_hm'];
         $data['FPQQLSH'] = $arr['FPQQLSH'];
@@ -251,7 +251,7 @@ class InvoiceSDK
         $return = simplexml_load_string($response);
 
         $res['code'] = (string)$return->returnStateInfo->returnCode[0];
-        $res['mssage'] = base64_decode($return->returnStateInfo->returnMessage[0]);
+        $res['message'] = base64_decode($return->returnStateInfo->returnMessage[0]);
         if ($return->returnStateInfo->returnCode[0] == '0000') {
             $content = base64_decode($return->Data->content[0]);
             $rs = openssl_decrypt($content, "des-ede3", str_pad(self::$key, 24, '0'), 1);
