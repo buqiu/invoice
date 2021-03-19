@@ -23,13 +23,15 @@ return [
     'XHF_YHZH' => '销货方银行账号',
     // 开票员
     'KPY' => '开票员',
-    // 可选
-    'SKY' => '可选',
-    // 1
+    // 收款员（可选）
+    'SKY' => '收款员',
+    //'复核员'
+    'FHR' => '复核员',
+    // 含税标志
     'HSBZ' => '1',
-    // 0
+    // 终端类型标识
     'TERMINALCODE' => '0',
-    // ZZS_PT_DZFP
+    // APPID
     'APPID' => 'ZZS_PT_DZFP',
     // 税号
     'TAXPAYWERID' => '税号',
@@ -37,11 +39,11 @@ return [
     'AUTHORIZATIONCODE' => '认证码',
     // 加密码
     'ENCRYPTCODE' => '加密码',
-    // ECXML.FPKJ.BC.E_INV
+    // 发票开具 ECXML.FPKJ.BC.E_INV
     'INTERFACE_FPKJ' => 'ECXML.FPKJ.BC.E_INV',
-    // ECXML.FPXZ.CX.E_INV
+    // 发票信息下载 ECXML.FPXZ.CX.E_INV
     'INTERFACE_FPXZ' => 'ECXML.FPXZ.CX.E_INV',
-    // ECXML.EMAILPHONEFPTS.TS.E.INV
+    // 邮箱发票推送 ECXML.EMAILPHONEFPTS.TS.E.INV
     'INTERFACE_FPYX' => 'ECXML.EMAILPHONEFPTS.TS.E.INV',
     // 请求码
     'REQUESTCODE' => '请求码',
@@ -51,12 +53,16 @@ return [
     'PASSWORD' => '密码',
     // 交互码
     'DATAEXCHANGEID' => '交互码',
-    // ECXML.FPKJ.BC.E_INV
+    // 发票明细信息下载 ECXML.FPKJ.BC.E_INV
     'KJFP' => 'ECXML.FPKJ.BC.E_INV',
-    // ECXML.FPXZ.CX.E_INV
+    // 发票信息推送 ECXML.FPXZ.CX.E_INV
     'DOWNLOAD' => 'ECXML.FPXZ.CX.E_INV',
-    // ECXML.EMAILPHONEFPTS.TS.E.INV
+    // 获取企业可用发票数量API ECXML.EMAILPHONEFPTS.TS.E.INV
     'EMAIL' => 'ECXML.EMAILPHONEFPTS.TS.E.INV',
     // 注册码
     'REGISTERCODE' => '注册码',
+    // 电子发票网址
+    'HOST' => '电子发票网址',
+    // 3DES密码
+    'KEY' => '3DES密码',
 ];

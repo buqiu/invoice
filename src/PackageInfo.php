@@ -52,9 +52,9 @@ class PackageInfo
         <responseCode>121</responseCode>
         <dataExchangeId>{$dataexchangeid}</dataExchangeId>
         <userName>{$dsptbm}</userName>
-        <passWord></passWord>
+        <passWord/>
         <taxpayerId>{$taxpayerid}</taxpayerId>
-        <authorizationCode>NH873FG4KW</authorizationCode>
+        <authorizationCode>{$authorizationcode}</authorizationCode>
     </globalInfo>
     <returnStateInfo>
         <returnCode />
@@ -63,8 +63,8 @@ class PackageInfo
     <Data>
         <dataDescription>
             <zipCode>0</zipCode>
-            <encryptCode>0</encryptCode>
-            <codeType>0</codeType>
+            <encryptCode>1</encryptCode>
+            <codeType>3DES</codeType>
         </dataDescription>
         <content>
         {$content}
@@ -85,6 +85,7 @@ XML;
      */
     public function getContent(array $arr)
     {
+
         $config = self::$config;
         $fpkj = '';
         foreach ($this->content_0($config) as $key => $item) {
@@ -134,7 +135,6 @@ XML;
                 $fpkj_dd .= '<'.strtoupper($item['key']).'>'.$arr[$item['key']].'</'.$item['key'].'>';
             }
         }
-//dd($arr ,$fpkj,$fpkj_xm,$fpkj_dd);
         $root = <<<ROOT
 <REQUEST_FPKJXX class="REQUEST_FPKJXX">
     <FPKJXX_FPTXX class="FPKJXX_FPTXX">
@@ -149,7 +149,8 @@ XML;
 </REQUEST_FPKJXX>
 ROOT;
 
-        return base64_encode($root);
+        return openssl_encrypt($root, "DES-EDE3", str_pad(self::$config['KEY'], 24, '0'), 0);
+
     }
 
     /***
@@ -186,7 +187,7 @@ ROOT;
 </REQUEST_FPXXXZ_NEW>
 ROOT;
 
-        return base64_encode($root);
+        return openssl_encrypt($root, "DES-EDE3", str_pad(self::$config['KEY'], 24, '0'), 0);
     }
 
     /***
@@ -211,7 +212,7 @@ ROOT;
             </COMMON_NODE>
             <COMMON_NODE>
                 <NAME>EMAIL</NAME>
-                <VALUE>{$arr['eamil']}</VALUE>
+                <VALUE>{$arr['email']}</VALUE>
             </COMMON_NODE>
             <COMMON_NODE>
                 <NAME>扩展字段名称</NAME>
@@ -248,7 +249,7 @@ ROOT;
 </REQUEST_EMAILPHONEFPTS>
 ROOT;
 
-        return base64_encode($root);
+        return openssl_encrypt($root, "DES-EDE3", str_pad(self::$config['KEY'], 24, '0'), 0);
     }
 
     /***
@@ -326,6 +327,11 @@ ROOT;
                 'text' => '',
                 'comment' => '购货方手机',
             ],
+            'GHF_NSRSBH' => [
+                'key' => 'GHF_NSRSBH',
+                'text' => '',
+                'comment' => '购货方识别号',
+            ],
             //01-企业 02-机关事业单位 03-个人  04-其他
             'GHFQYLX' => [
                 'key' => 'GHFQYLX',
@@ -339,6 +345,10 @@ ROOT;
             'KPY' => [
                 'key' => 'KPY',
                 'text' => $config['KPY'],
+            ],
+            'FHR' => [
+                'key' => 'FHR',
+                'text' => $config['FHR'],
             ],
             //1 正票  2 红票
             'KPLX' => [
@@ -418,7 +428,7 @@ ROOT;
             ],
             'YHZCBS' => [
                 'key' => 'YHZCBS',
-                'text' => '0',
+                'text' => '',
                 'comment' => '优惠政策标识',
             ],
             //小数点后2位
@@ -432,6 +442,18 @@ ROOT;
                 'key' => 'SL',
                 'text' => '',
                 'comment' => '税率',
+            ],
+            //增值税特殊管理
+            'ZZSTSGL' => [
+                'key' => 'ZZSTSGL',
+                'text' => '',
+                'comment' => '增值税特殊管理',
+            ],
+            //零税率标识
+            'LSLBS' => [
+                'key' => 'LSLBS',
+                'text' => '',
+                'comment' => '零税率标识',
             ],
         ];
     }
@@ -499,6 +521,10 @@ ROOT;
         ];
     }
 
+    /**
+     * @param null $utimestamp
+     * @return float
+     */
     private function udate($utimestamp = null)
     {
         if (is_null($utimestamp)) {
@@ -509,5 +535,20 @@ ROOT;
         $milliseconds = round(($utimestamp - $timestamp) * 100);
 
         return $milliseconds;
+    }
+
+    /**
+     * @return false|string
+     */
+    public function getInvoiceNumber()
+    {
+        $config = self::$config;
+        $root = <<<ROOT
+<REQUEST_KYFPSL class="REQUEST_KYFPSL">
+    <NSRSBH>{$config['NSRSBH']}</NSRSBH>
+</REQUEST_KYFPSL>
+ROOT;
+
+        return openssl_encrypt($root, "DES-EDE3", str_pad(self::$config['KEY'], 24, '0'), 0);
     }
 }

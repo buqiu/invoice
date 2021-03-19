@@ -15,14 +15,18 @@ class InvoiceSDK
     const KJFP = 'ECXML.FPKJ.BC.E_INV';
     const DOWNLOAD = 'ECXML.FPMXXZ.CX.E_INV';
     const EMAIL = 'ECXML.EMAILPHONEFPTS.TS.E.INV';
-    const HOST = 'http://fw2test.shdzfp.com:15002/sajt-shdzfp-sl-http/SvrServlet';
+    const INVOICENUMBER = 'ECXML.QY.KYFPSL';
 
     private static $config = [];
+    private static $host = '';
+    private static $key = '';
     private $packageInfo = '';
 
     public function __construct($config)
     {
         self::$config = $config;
+        self::$host = $config['HOST'];
+        self::$key = $config['KEY'];
         $this->packageInfo = new PackageInfo($config);
     }
 
@@ -54,9 +58,12 @@ class InvoiceSDK
             $items[$key]['XMJE'] = sprintf('%.2f', $item['price'] * $item['quantity']);
             $items[$key]['SL'] = $item['sl'];
             $items[$key]['HSBZ'] = $item['hsbz'];
-
+            $items[$key]['YHZCBS'] = $item['yhzcbs'];
+            $items[$key]['ZZSTSGL'] = $item['zzstsgl'];
+            $items[$key]['LSLBS'] = $item['lslbs'];
 
             if ($arr['discount'] && $arr['discount'] != 0.00 && $key == 0) {
+
                 $items[$key]['FPHXZ'] = 2;
                 $items[$key]['discount'] = [
                     'XMMC' => $show_name,
@@ -76,6 +83,7 @@ class InvoiceSDK
                 $data['KPXM'] = $show_name; //kpxm
             }
         }
+
         $data['items'] = $items;
         $data['mobile'] = isset($arr['mobile']) ? $arr['mobile'] : '';
 
@@ -89,13 +97,14 @@ class InvoiceSDK
         $data['GHFMC'] = $arr['GHFMC'];
         $data['GHF_SJ'] = $arr['GHF_SJ'];
         $data['GHFQYLX'] = $arr['GHFQYLX'];
+        $data['GHF_NSRSBH'] = $arr['GHF_NSRSBH'];
         $data['KPLX'] = $arr['KPLX'];
         $data['CZDM'] = $arr['CZDM'];
 
         $content = $this->packageInfo->getContent($data);
         $xml = $this->packageInfo->getXml(self::KJFP, $content);
 
-        $response = $this->postCurl(self::HOST, $xml);
+        $response = $this->postCurl(self::$host, $xml);
         $content = simplexml_load_string($response);
 
         return $content;
@@ -171,7 +180,7 @@ class InvoiceSDK
         $content = $this->packageInfo->getDownload($data);
         $xml = $this->packageInfo->getXml(self::DOWNLOAD, $content);
 
-        $response = $this->postCurl(self::HOST, $xml);
+        $response = $this->postCurl(self::$host, $xml);
 
         $return = simplexml_load_string($response);
 
@@ -179,17 +188,20 @@ class InvoiceSDK
             //PDF_XZFS 1 是pdf内容 必然要解压
             if ($return->Data->dataDescription->zipCode[0] == 1) {
                 $content = gzdecode(base64_decode($return->Data->content[0]));
-                $pdf = simplexml_load_string($content);
+                $rs = openssl_decrypt($content, "des-ede3", str_pad(self::$key, 24, '0'), 1);
+                $pdf = simplexml_load_string($rs);
 
                 return $pdf;
             }
         } else {
             //状态有误
             $res['code'] = $return->returnStateInfo->returnCode[0];
-            $res['mssage'] = base64_decode($return->returnStateInfo->returnMessage[0]);
+            $res['message'] = base64_decode($return->returnStateInfo->returnMessage[0]);
 
             return $res;
         }
+
+        return $return;
     }
 
     /**
@@ -200,10 +212,9 @@ class InvoiceSDK
      */
     public function email(array $arr)
     {
-
         $len = strlen($arr['order_bn']);
         $data['lsh'] = str_repeat('0', 20 - $len).$arr['order_bn'];
-        $data['eamil'] = $arr['email'];
+        $data['email'] = $arr['email'];
         $data['fp_dm'] = $arr['fp_dm'];
         $data['fp_hm'] = $arr['fp_hm'];
         $data['FPQQLSH'] = $arr['FPQQLSH'];
@@ -211,7 +222,7 @@ class InvoiceSDK
         $content = $this->packageInfo->getEmail($data);
         $xml = $this->packageInfo->getXml(self::EMAIL, $content);
 
-        $response = $this->postCurl(self::HOST, $xml);
+        $response = $this->postCurl(self::$host, $xml);
 
         $return = simplexml_load_string($response);
 
@@ -223,5 +234,33 @@ class InvoiceSDK
             echo "\n INVOICE INFO ERROR EMAIL \t {$return->returnStateInfo->returnCode[0]}\t";
         }
 
+        return $return;
+    }
+
+    /**
+     * 发票剩余数量
+     *
+     * @return mixed
+     */
+    public function getInvoiceNumber()
+    {
+        $content = $this->packageInfo->getInvoiceNumber();
+        $xml = $this->packageInfo->getXml(self::INVOICENUMBER, $content);
+
+        $response = $this->postCurl(self::$host, $xml);
+        $return = simplexml_load_string($response);
+
+        $res['code'] = (string)$return->returnStateInfo->returnCode[0];
+        $res['message'] = base64_decode($return->returnStateInfo->returnMessage[0]);
+        if ($return->returnStateInfo->returnCode[0] == '0000') {
+            $content = base64_decode($return->Data->content[0]);
+            $rs = openssl_decrypt($content, "des-ede3", str_pad(self::$key, 24, '0'), 1);
+            $data = strip_tags(trim($rs));
+            $res['number'] = (int)trim(explode(' ', $data)['8']);
+        } else {
+            $res['number'] = '';
+        }
+
+        return $res;
     }
 }
