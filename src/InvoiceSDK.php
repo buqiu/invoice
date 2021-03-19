@@ -33,7 +33,7 @@ class InvoiceSDK
     /***
      * 开具发票
      *
-     * @param array $arr
+     * @param  array  $arr
      * @return \SimpleXMLElement
      */
     public function create(array $arr)
@@ -100,7 +100,9 @@ class InvoiceSDK
         $data['GHF_NSRSBH'] = $arr['GHF_NSRSBH'];
         $data['KPLX'] = $arr['KPLX'];
         $data['CZDM'] = $arr['CZDM'];
-
+        $data['GHF_YHZH'] = isset($arr['GHF_YHZH']) ? $arr['GHF_YHZH'] : "";
+        $data['GHF_DZ'] = isset($arr['GHF_DZ']) ? $arr['GHF_DZ'] : "";
+        $data['GHF_GDDH'] = isset($arr['GHF_GDDH']) ? $arr['GHF_GDDH'] : "";
         $content = $this->packageInfo->getContent($data);
         $xml = $this->packageInfo->getXml(self::KJFP, $content);
 
@@ -114,7 +116,7 @@ class InvoiceSDK
      * 请求方式  POST
      * @param $url
      * @param $params
-     * @param string $headerArr
+     * @param  string  $headerArr
      * @return bool|string
      */
     public function postCurl($url, $params, $headerArr = '')
@@ -166,7 +168,7 @@ class InvoiceSDK
     /**
      * 下载发票
      *
-     * @param array $arr
+     * @param  array  $arr
      * @return \SimpleXMLElement
      */
     public function download(array $arr)
@@ -207,7 +209,7 @@ class InvoiceSDK
     /**
      * 发送邮件
      *
-     * @param array $arr
+     * @param  array  $arr
      * @return \SimpleXMLElement
      */
     public function email(array $arr)
@@ -250,13 +252,13 @@ class InvoiceSDK
         $response = $this->postCurl(self::$host, $xml);
         $return = simplexml_load_string($response);
 
-        $res['code'] = (string)$return->returnStateInfo->returnCode[0];
+        $res['code'] = (string) $return->returnStateInfo->returnCode[0];
         $res['message'] = base64_decode($return->returnStateInfo->returnMessage[0]);
         if ($return->returnStateInfo->returnCode[0] == '0000') {
             $content = base64_decode($return->Data->content[0]);
             $rs = openssl_decrypt($content, "des-ede3", str_pad(self::$key, 24, '0'), 1);
             $data = strip_tags(trim($rs));
-            $res['number'] = (int)trim(explode(' ', $data)['8']);
+            $res['number'] = (int) trim(explode(' ', $data)['8']);
         } else {
             $res['number'] = '';
         }
