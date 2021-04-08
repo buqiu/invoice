@@ -398,6 +398,18 @@ ROOT;
                 'text' => '',
                 'comment' => '合计税额',
             ],
+            // 发票代码
+            'YFP_DM' => [
+                'key' => 'YFP_DM',
+                'text' => '',
+                'comment' => '原发票代码',
+            ],
+            // 发票号码
+            'YFP_HM' => [
+                'key' => 'YFP_HM',
+                'text' => '',
+                'comment' => '原发票号码',
+            ],
         ];
     }
 
@@ -469,16 +481,6 @@ ROOT;
                 'key' => 'LSLBS',
                 'text' => '',
                 'comment' => '零税率标识',
-            ],
-            'YFP_DM' => [
-                'key' => 'YFP_DM',
-                'text' => '',
-                'comment' => '原发票代码',
-            ],
-            'YFP_HM' => [
-                'key' => 'YFP_HM',
-                'text' => '',
-                'comment' => '原发票号码',
             ],
         ];
     }
