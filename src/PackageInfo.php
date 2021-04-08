@@ -470,6 +470,16 @@ ROOT;
                 'text' => '',
                 'comment' => '零税率标识',
             ],
+            'YFP_DM' => [
+                'key' => 'YFP_DM',
+                'text' => '',
+                'comment' => '原发票代码',
+            ],
+            'YFP_HM' => [
+                'key' => 'YFP_HM',
+                'text' => '',
+                'comment' => '原发票号码',
+            ],
         ];
     }
 

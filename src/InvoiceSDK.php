@@ -103,6 +103,8 @@ class InvoiceSDK
         $data['GHF_YHZH'] = isset($arr['GHF_YHZH']) ? $arr['GHF_YHZH'] : "";
         $data['GHF_DZ'] = isset($arr['GHF_DZ']) ? $arr['GHF_DZ'] : "";
         $data['GHF_GDDH'] = isset($arr['GHF_GDDH']) ? $arr['GHF_GDDH'] : "";
+        $data['YFP_DM'] = isset($arr['YFP_DM']) ? $arr['YFP_DM'] : "";
+        $data['YFP_HM'] = isset($arr['YFP_HM']) ? $arr['YFP_HM'] : '';
         $content = $this->packageInfo->getContent($data);
         $xml = $this->packageInfo->getXml(self::KJFP, $content);
 
