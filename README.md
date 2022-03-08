@@ -21,16 +21,18 @@ php artisan vendor:publish
 然后只需打开 `config/invoice.php` 并编辑即可！
 
 #### 如果你想使用 `Facade`
+
 ##### 在 `config\app.php` 找到 `providers` 数组，添加刚创建的类
+
 ```
 Buqiu\Invoice\InvoiceProvider::class
 ```
 
 ##### 在 `config\app.php` 找到 `aliaes` 数组，添加刚创建的类
+
 ```
 'InvoiceSdkFacade' =>   Buqiu\Invoice\Facades\InvoiceSdkFacade::class
 ```
-
 
 #### 配置文件
 
@@ -149,6 +151,9 @@ return [
             'HJSE' => '', //合计税额
             'trade_no' => $no,  //请求流水号
             'KPHJJE' => '',   //价税合计金额
+            'YFP_DM'=>'', // 发票代码
+            'YFP_HM'=>'', // 发票号码
+            'BZ'=>'', // 备注
         ];
     
         return $arr;
