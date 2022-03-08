@@ -105,6 +105,7 @@ class InvoiceSDK
         $data['GHF_GDDH'] = isset($arr['GHF_GDDH']) ? $arr['GHF_GDDH'] : "";
         $data['YFP_DM'] = isset($arr['YFP_DM']) ? $arr['YFP_DM'] : "";
         $data['YFP_HM'] = isset($arr['YFP_HM']) ? $arr['YFP_HM'] : '';
+        $data['BZ'] = isset($arr['BZ']) ? $arr['BZ'] : '';
         $content = $this->packageInfo->getContent($data);
         $xml = $this->packageInfo->getXml(self::KJFP, $content);
 
@@ -123,7 +124,7 @@ class InvoiceSDK
      */
     public function postCurl($url, $params, $headerArr = '')
     {
-        if (!$url) {
+        if ( ! $url) {
             return '请求缺少URL！';
         }
 
@@ -133,7 +134,7 @@ class InvoiceSDK
 
         );
 
-        if (is_array($headerArr) && !empty($headerArr)) {
+        if (is_array($headerArr) && ! empty($headerArr)) {
             $queryHeaders = array();
             foreach ($headerArr as $k => $v) {
                 $queryHeaders[] = $k.':'.$v;
@@ -156,7 +157,7 @@ class InvoiceSDK
 
         //绕过SSL验证
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        if (!empty($headers)) {
+        if ( ! empty($headers)) {
             curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
         }
 
