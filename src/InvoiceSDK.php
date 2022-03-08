@@ -106,13 +106,13 @@ class InvoiceSDK
         $data['YFP_DM'] = isset($arr['YFP_DM']) ? $arr['YFP_DM'] : "";
         $data['YFP_HM'] = isset($arr['YFP_HM']) ? $arr['YFP_HM'] : '';
         $data['BZ'] = isset($arr['BZ']) ? $arr['BZ'] : '';
+
         $content = $this->packageInfo->getContent($data);
         $xml = $this->packageInfo->getXml(self::KJFP, $content);
 
         $response = $this->postCurl(self::$host, $xml);
-        $content = simplexml_load_string($response);
 
-        return $content;
+        return simplexml_load_string($response);
     }
 
     /**
