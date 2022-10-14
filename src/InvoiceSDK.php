@@ -251,13 +251,13 @@ class InvoiceSDK
     /**
      * 计算签名
      *
-     * @param path       请求地址
-     * @param senid     流水号
-     * @param appKey    appKey
-     * @param appSecret appSecret
-     * @param nonce     随机码
-     * @param body    请求包体
-     * @param timestamp    时间戳
+     * @param $path
+     * @param $appSecret
+     * @param $appKey
+     * @param $senid
+     * @param $nonce
+     * @param $body
+     * @param $timestamp
      * @return string
      */
     public static function MakeSign($path, $appSecret, $appKey, $senid, $nonce, $body, $timestamp)
