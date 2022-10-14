@@ -62,7 +62,7 @@ return [
     'with_tax_flag' => '',
     // 是否机动车销售统一发票
     'is_vehicle' => '0',
-    // 开具二手车销售统一发票才需要传
+    // 开具二手车销售统一发票
     'is_second_hand_car' => '0',
 ];
 ```
