@@ -1,271 +1,440 @@
 <?php
 /**
  * Name: 发票SDK.
- * User: 董坤鸿
- * Date: 2020/06/23
- * Time: 13:59
+ * User: Kevin
+ * Date: 2022/10/12
+ * Time: 13:35
  */
 
 namespace Buqiu\Invoice;
 
-use Buqiu\Invoice\PackageInfo;
+use Exception;
 
 class InvoiceSDK
 {
-    const KJFP = 'ECXML.FPKJ.BC.E_INV';
-    const DOWNLOAD = 'ECXML.FPMXXZ.CX.E_INV';
-    const EMAIL = 'ECXML.EMAILPHONEFPTS.TS.E.INV';
-    const INVOICENUMBER = 'ECXML.QY.KYFPSL';
+    /**
+     * SDK版本号
+     * @var string
+     */
+    public static $VERSION = "2.0.0";
+
+    public static $AUTH_URL = "https://open.nuonuo.com/accessToken";
 
     private static $config = [];
-    private static $host = '';
-    private static $key = '';
-    private $packageInfo = '';
 
     public function __construct($config)
     {
         self::$config = $config;
-        self::$host = $config['HOST'];
-        self::$key = $config['KEY'];
-        $this->packageInfo = new PackageInfo($config);
-    }
-
-    /***
-     * 开具发票
-     *
-     * @param  array  $arr
-     * @return \SimpleXMLElement
-     */
-    public function create(array $arr)
-    {
-        $data = [];
-        if ($arr['invoice_type'] == 2) {
-            $data['ghfmc'] = $arr['invoice_title'];
-            $data['ghfqylx'] = '01';
-        } else {
-            $data['ghfmc'] = '个人';
-            $data['ghfqylx'] = '03';
-        }
-        $items = [];
-        //查询子项目
-        foreach ($arr['items'] as $key => $item) {
-            $show_name = $item['name'];
-            $items[$key]['XMMC'] = $show_name;
-            $items[$key]['XMSL'] = sprintf('%.8f', $item['quantity']);
-            $items[$key]['XMDJ'] = sprintf('%.8f', $item['price']);
-            $items[$key]['SPBM'] = $item['spbm'];
-            $items[$key]['ZXBM'] = $item['zxbm'];
-            $items[$key]['XMJE'] = sprintf('%.2f', $item['price'] * $item['quantity']);
-            $items[$key]['SL'] = $item['sl'];
-            $items[$key]['HSBZ'] = $item['hsbz'];
-            $items[$key]['YHZCBS'] = $item['yhzcbs'];
-            $items[$key]['ZZSTSGL'] = $item['zzstsgl'];
-            $items[$key]['LSLBS'] = $item['lslbs'];
-
-            if ($arr['discount'] && $arr['discount'] != 0.00 && $key == 0) {
-
-                $items[$key]['FPHXZ'] = 2;
-                $items[$key]['discount'] = [
-                    'XMMC' => $show_name,
-                    'XMSL' => '-'.sprintf('%.8f', 1),
-                    'FPHXZ' => '1',
-                    'XMDJ' => sprintf('%.8f', $arr['discount']),
-                    'SPBM' => $item['spbm'],
-                    'ZXBM' => $item['id'],
-                    'XMJE' => '-'.sprintf('%.2f', $arr['discount']),
-                    'SL' => $item['sl'],
-                    'HSBZ' => $item['hsbz'],
-                ];
-            } else {
-                $items[$key]['FPHXZ'] = 0;
-            }
-            if ($key == 0) {
-                $data['KPXM'] = $show_name; //kpxm
-            }
-        }
-
-        $data['items'] = $items;
-        $data['mobile'] = isset($arr['mobile']) ? $arr['mobile'] : '';
-
-        $data['KPHJJE'] = sprintf('%.2f', $arr['sum']);
-        $data['HJBHSJE'] = sprintf('%.2f', $arr['sum']);
-        $data['HJSE'] = sprintf('%.2f', $arr['HJSE']);
-        $data['DDH'] = $arr['order_bn'];
-
-        $data['FPQQLSH'] = $arr['FPQQLSH'];
-        ///$data['KPXM'] = $arr['KPXM'];
-        $data['GHFMC'] = $arr['GHFMC'];
-        $data['GHF_SJ'] = $arr['GHF_SJ'];
-        $data['GHFQYLX'] = $arr['GHFQYLX'];
-        $data['GHF_NSRSBH'] = $arr['GHF_NSRSBH'];
-        $data['KPLX'] = $arr['KPLX'];
-        $data['CZDM'] = $arr['CZDM'];
-        $data['GHF_YHZH'] = isset($arr['GHF_YHZH']) ? $arr['GHF_YHZH'] : "";
-        $data['GHF_DZ'] = isset($arr['GHF_DZ']) ? $arr['GHF_DZ'] : "";
-        $data['GHF_GDDH'] = isset($arr['GHF_GDDH']) ? $arr['GHF_GDDH'] : "";
-        $data['YFP_DM'] = isset($arr['YFP_DM']) ? $arr['YFP_DM'] : "";
-        $data['YFP_HM'] = isset($arr['YFP_HM']) ? $arr['YFP_HM'] : '';
-        $data['BZ'] = isset($arr['BZ']) ? $arr['BZ'] : '';
-
-        $content = $this->packageInfo->getContent($data);
-        $xml = $this->packageInfo->getXml(self::KJFP, $content);
-
-        $response = $this->postCurl(self::$host, $xml);
-
-        return simplexml_load_string($response);
     }
 
     /**
-     * 请求方式  POST
-     * @param $url
-     * @param $params
-     * @param  string  $headerArr
-     * @return bool|string
+     *
+     * 商家应用获取accessToken
+     *
+     * 返回报文:
+     * {"access_token":"xxx","expires_in":86400}
+     *
+     * @param appKey    开放平台appKey
+     * @param appSecret 开放平台appSecret
+     * @return bool|string|成功时返回，其他抛异常
+     * @throws Exception()
      */
-    public function postCurl($url, $params, $headerArr = '')
+    public static function getMerchantToken($timeOut = 6)
     {
-        if ( ! $url) {
-            return '请求缺少URL！';
-        }
+        //检测必填参数
+        self::checkParam(self::$config['app_key'], "AppKey不能为空");
+        self::checkParam(self::$config['app_secret'], "AppSecret不能为空");
 
         $headers = array(
-            //'content-type:application/json;charset=utf-8',
-            'content-type:application/x-www-form-urlencoded;charset=utf-8',
-
+            "Content-Type: application/x-www-form-urlencoded"
         );
+        $params = array(
+            "client_id" => self::$config['app_key'],
+            "client_secret" => self::$config['app_secret'],
+            "grant_type" => "client_credentials"
+        );
+        $params = http_build_query($params);
 
-        if (is_array($headerArr) && ! empty($headerArr)) {
-            $queryHeaders = array();
-            foreach ($headerArr as $k => $v) {
-                $queryHeaders[] = $k.':'.$v;
+        $res = self::postCurl(self::$AUTH_URL, $params, $headers, $timeOut);
+        return $res;
+    }
+
+    /**
+     * ISV应用获取accessToken
+     *
+     * 返回报文:
+     * {"access_token":"xxx","expires_in":86400,"refresh_token":"xxx","userId":"xxx","oauthUser":"{\"userName\":\"xxx\",\"registerType\":\"1\"}","userName":"xxx","registerType":"1"}
+     *
+     * @param appKey      开放平台appKey
+     * @param appSecret   开放平台appSecret
+     * @param code        临时授权码
+     * @param taxnum      授权商户税号
+     * @param redirectUri 授权回调地址
+     * @return bool|string|成功时返回，其他抛异常
+     * @throws Exception()
+     */
+    public static function getISVToken($timeOut = 6)
+    {
+        //检测必填参数
+        self::checkParam(self::$config['app_key'], "AppKey不能为空");
+        self::checkParam(self::$config['app_secret'], "AppSecret不能为空");
+        self::checkParam(self::$config['code'], "code不能为空");
+        self::checkParam(self::$config['tax_num'], "taxnum不能为空");
+        self::checkParam(self::$config['redirect_uri'], "redirectUri不能为空");
+
+        $headers = array(
+            "Content-Type: application/x-www-form-urlencoded"
+        );
+        $params = array(
+            "client_id" => self::$config['app_key'],
+            "client_secret" => self::$config['app_secret'],
+            "code" => self::$config['code'],
+            "taxNum" => self::$config['tax_num'],
+            "redirect_uri" => self::$config['redirect_uri'],
+            "grant_type" => "authorization_code"
+        );
+        $params = http_build_query($params);
+
+        $res = self::postCurl(self::$AUTH_URL, $params, $headers, $timeOut);
+        return $res;
+    }
+
+    /**
+     * ISV应用刷新accessToken
+     *
+     * 返回报文:
+     * {"access_token":"xxx","refresh_token":"xxx","expires_in":86400}
+     *
+     * @param refreshToken 调用令牌
+     * @param userId       oauthUser中的userId
+     * @param appSecret    开放平台appSecret
+     * @return bool|string|成功时返回，其他抛异常
+     * @throws Exception()
+     */
+    public static function refreshISVToken($refreshToken, $userId, $appSecret, $timeOut = 6)
+    {
+        self::checkParam($userId, "userId不能为空");
+        self::checkParam(self::$config['app_secret'], "appSecret不能为空");
+        self::checkParam($refreshToken, "refreshToken不能为空");
+
+        $headers = array(
+            "Content-Type: application/x-www-form-urlencoded"
+        );
+        $params = array(
+            "client_id" => $userId,
+            "client_secret" => self::$config['app_secret'],
+            "refresh_token" => $refreshToken,
+            "grant_type" => "refresh_token"
+        );
+        $params = http_build_query($params);
+
+        $res = self::postCurl(self::$AUTH_URL, $params, $headers, $timeOut);
+        return $res;
+    }
+
+    /**
+     * 发送HTTP POST请求 <同步>
+     * @param url       请求地址
+     * @param senid     流水号
+     * @param appKey    appKey
+     * @param appSecret appSecret
+     * @param token     授权码
+     * @param taxnum    税号, 普通商户可不填
+     * @param method    API名称
+     * @param content   私有参数, 标准JSON格式
+     * @return bool|string|成功时返回，其他抛异常
+     * @throws Exception()
+     */
+    public static function sendPostSyncRequest($senid, $token,$method, $content, $timeOut = 6)
+    {
+        $url = self::$config['url'];
+        $appKey = self::$config['app_key'];
+        $appSecret = self::$config['app_secret'];
+        $taxnum = self::$config['tax_num'];
+
+        self::checkParam($senid, "senid不能为空");
+        self::checkParam($token, "token不能为空");
+        self::checkParam($appKey, "appKey不能为空");
+        self::checkParam($method, "method不能为空");
+        self::checkParam($url, "请求地址URL不能为空");
+        self::checkParam($content, "content不能为空");
+        self::checkParam($appSecret, "appSecret不能为空");
+
+
+        try {
+            $timestamp = time();
+            $nonce = rand(10000, 1000000000);
+
+            $finalUrl = "{$url}?senid={$senid}&nonce={$nonce}&timestamp={$timestamp}&appkey={$appKey}";
+
+            $urlInfo = parse_url($url);
+            if ($urlInfo === FALSE) {
+                throw new Exception("url解析失败");
             }
-            //print_r($queryHeaders);
-            $headers = array_merge($headers, $queryHeaders);
+
+            $sign = self::makeSign($urlInfo["path"], $appSecret, $appKey, $senid, $nonce, $content, $timestamp);
+
+            $headers = array(
+                "Content-Type: application/json",
+                "X-Nuonuo-Sign: {$sign}",
+                "accessToken: {$token}",
+                "userTax: {$taxnum}",
+                "method: {$method}",
+                "sdkVer: " . self::$VERSION
+            );
+
+            // 调用开放平台API
+            return json_decode(self::postCurl($finalUrl, $content, $headers, $timeOut));
+        } catch (Exception $e) {
+            throw new Exception("发送HTTP请求异常:" . $e->getMessage());
         }
+    }
 
-        //$body = json_encode($params);
-        $body = $params;
+    public static function checkParam($param, $errMsg)
+    {
+        if(empty($param)) {
+            throw new Exception($errMsg);
+        }
+    }
 
+    /**
+     * 以post方式发起http调用
+     *
+     * @param string $url  url
+     * @param array $params post参数
+     * @param int $second   url执行超时时间，默认30s
+     * @throws Exception()
+     */
+    private static function postCurl($url, $params, $headers = array(), $second = 30)
+    {
         $ch = curl_init();
-        curl_setopt($ch, CURLOPT_POST, 1);
+        $curlVersion = curl_version();
 
-        //curl_setopt($ch, CURLOPT_HTTPHEADER,array("Content-Type: application/json;charset=utf-8"));
+        //设置超时
+        curl_setopt($ch, CURLOPT_TIMEOUT, $second);
+        curl_setopt($ch,CURLOPT_URL, $url);
+        curl_setopt($ch,CURLOPT_SSL_VERIFYPEER, FALSE);
+        curl_setopt($ch,CURLOPT_SSL_VERIFYHOST, FALSE);
+        //设置header
+        curl_setopt($ch, CURLOPT_HEADER, FALSE);
+        //要求结果为字符串且输出到屏幕上
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
 
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $body);
+        //post提交方式
+        curl_setopt($ch, CURLOPT_POST, TRUE);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $params);
 
-        //绕过SSL验证
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        if ( ! empty($headers)) {
+        if (!empty($headers)) {
             curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
         }
 
-        $return_content = curl_exec($ch);//运行curl
-        curl_close($ch);
-
-        return $return_content;
-
+        //运行curl
+        $data = curl_exec($ch);
+        //返回结果
+        if($data) {
+            curl_close($ch);
+            return $data;
+        } else {
+            $error = curl_error($ch);
+            curl_close($ch);
+            throw new Exception("curl出错:$error");
+        }
     }
 
     /**
-     * 下载发票
+     * 计算签名
      *
-     * @param  array  $arr
-     * @return \SimpleXMLElement
+     * @param path       请求地址
+     * @param senid     流水号
+     * @param appKey    appKey
+     * @param appSecret appSecret
+     * @param nonce     随机码
+     * @param body    请求包体
+     * @param timestamp    时间戳
+     * @return string
      */
-    public function download(array $arr)
+    public static function MakeSign($path, $appSecret, $appKey, $senid, $nonce, $body, $timestamp)
     {
-        $len = strlen($arr['order_bn']);
-        $data['lsh'] = str_repeat('0', 20 - $len).$arr['order_bn'];
-        $data['PDF_XZFS'] = 3;
-        $data['DDH'] = $arr['order_bn'];
-        $data['FPQQLSH'] = $arr['FPQQLSH'];
+        $pieces = explode('/', $path);
+        $signStr = "a={$pieces[3]}&l={$pieces[2]}&p={$pieces[1]}&k={$appKey}&i={$senid}&n={$nonce}&t={$timestamp}&f={$body}";
 
-        $content = $this->packageInfo->getDownload($data);
-        $xml = $this->packageInfo->getXml(self::DOWNLOAD, $content);
-
-        $response = $this->postCurl(self::$host, $xml);
-
-        $return = simplexml_load_string($response);
-
-        if ($return->returnStateInfo->returnCode[0] == '0000') {
-            //PDF_XZFS 1 是pdf内容 必然要解压
-            if ($return->Data->dataDescription->zipCode[0] == 1) {
-                $content = gzdecode(base64_decode($return->Data->content[0]));
-                $rs = openssl_decrypt($content, "des-ede3", str_pad(self::$key, 24, '0'), 1);
-                $pdf = simplexml_load_string($rs);
-
-                return $pdf;
-            }
-        } else {
-            //状态有误
-            $res['code'] = $return->returnStateInfo->returnCode[0];
-            $res['message'] = base64_decode($return->returnStateInfo->returnMessage[0]);
-
-            return $res;
-        }
-
-        return $return;
+        return base64_encode(hash_hmac("sha1", $signStr, $appSecret, true));
     }
 
     /**
-     * 发送邮件
+     * 过滤参数
      *
-     * @param  array  $arr
-     * @return \SimpleXMLElement
+     * @param array $params 参数
+     * @param string $method 请求方法名
+     * @return array|false|string
      */
-    public function email(array $arr)
-    {
-        $len = strlen($arr['order_bn']);
-        $data['lsh'] = str_repeat('0', 20 - $len).$arr['order_bn'];
-        $data['email'] = $arr['email'];
-        $data['fp_dm'] = $arr['fp_dm'];
-        $data['fp_hm'] = $arr['fp_hm'];
-        $data['FPQQLSH'] = $arr['FPQQLSH'];
+    public static function getBody(array $params,string $method){
+        switch ($method){
+            case 'nuonuo.ElectronInvoice.queryInvoiceResult' :
+                $body = array("serialNos" => $params['serialNos'] ?? '',);
+                break;
+            case 'nuonuo.ElectronInvoice.requestBillingNew' :
+                $body =  array(
+                    "order" => array(
+                        "buyerName" => $params['buyerName'] ?? "", // 购方名称
+                        "buyerTaxNum" => $params['buyerTaxNum'] ?? "", // 购方税号（企业要填，个人可为空；全电专票、二手车销售统一发票时必填）
+                        "buyerTel" => $params['buyerTel'] ?? "", // 购方电话（购方地址+电话总共不超100字符；二手车销售统一发票时必填）
+                        "buyerAddress" => $params['buyerAddress'] ?? "", // 购方地址（购方地址+电话总共不超100字符；二手车销售统一发票时必填）
+                        "buyerAccount" => $params['buyerAccount'] ?? "", // 购方银行开户行及账号
+                        "salerTaxNum" => self::$config['tax_num'] ?? '', // 销方税号
+                        "salerTel" => self::$config['saler_tel'] ?? "", // 销方电话
+                        "salerAddress" => self::$config['saler_address'] ?? "", // 销方地址
+                        "salerAccount" => self::$config['salerAccount'] ?? "", // 销方银行开户行及账号(二手车销售统一发票时必填)
+                        "orderNo" => $params['orderNo'] ?? "", // 订单号（每个企业唯一）
+                        "invoiceDate" => $params['buyerAccount'] ?? "", // 订单时间
+                        "invoiceCode" => $params['invoiceCode'] ?? "", // 冲红时填写的对应蓝票发票代码（红票必填 10位或12 位， 11位的时候请左补 0）
+                        "invoiceNum" => $params['invoiceNum'] ?? "", // 冲红时填写的对应蓝票发票号码（红票必填，不满8位请左补0）
+                        // 冲红原因：1:销货退回;2:开票有误;3:服务中止;4:发生销售折让(开具红票时且票种为p,c,e,f,r需要传--成品油发票除外；不传时默认为 1)
+                        "redReason" => $params['redReason'] ?? "1",
+                        // 红字信息表编号.专票冲红时此项必填，且必须在备注中注明“开具红字增值税专用发票信息表编号ZZZZZZZZZZZZZZZ
+                        // Z”字样，其 中“Z”为开具红字增值税专用发票所需要的长度为16位信息表编号（建议16位，最长可支持24位）。
+                        "billInfoNo" => $params['billInfoNo'] ?? "",
+                        "departmentId" => $params['departmentId'] ?? "", // 部门门店id（诺诺系统中的id）
+                        "clerkId" => $params['clerkId'] ?? "", // 开票员id（诺诺系统中的id）
+                        // 冲红时，在备注中注明“对应正数发票代码:XXXXXXXXX号码:YYYYYYYY”文案，其中“X”为发票代码，“Y”为发票号码，可以不填，接口会自动添加该文案；机动车发票蓝票时备注只能为空
+                        "remark" => $params['remark'] ?? "",
+                        "checker" => self::$config['checker'] ?? "", // 复核人
+                        "payee" => $params['payee'] ?? "", // 收款人
+                        "clerk" => self::$config['clerk'] ?? "", // 开票员（全电发票时需要传入和开票登录账号对应的开票员姓名）
+                        "listFlag" => $params['listFlag'] ?? "0", // 清单标志：非清单:0；清单:1，默认:0，电票固定为0
+                        "listName" => $params['listName'] ?? "详见销货清单", //清单项目名称：对应发票票面项目名称（listFlag为1时，必填，默认为“详见销货清单”）
+                        "pushMode" => $params['pushMode'] ?? "1", // 推送方式：-1,不推送;0,邮箱;1,手机（默认）;2,邮箱、手机
+                        "buyerPhone" => $params['buyerPhone'] ?? "", // 购方手机（pushMode为1或2时，此项为必填，同时受企业资质是否必填控制）
+                        "email" => $params['email'] ?? "", // 推送邮箱（pushMode为0或2时，此项为必填，同时受企业资质是否必填控制）
+                        "invoiceType" => $params['invoiceType'] ?? "", // 开票类型：1:蓝票;2:红票 （全电发票暂不支持红票）
+                        // 发票种类：
+                        // p,普通发票(电票)(默认);
+                        // c,普通发票(纸票);
+                        // s,专用发票;
+                        // e,收购发票(电票);
+                        // f,收购发票(纸质);
+                        //r,普通发票(卷式);
+                        // b,增值税电子专用发票;
+                        // j,机动车销售统一发票;
+                        // u,二手车销售统一发票;
+                        // bs:电子发票(增值税专用发票)-即全电专票,
+                        // pc:电子发票(普通发票)-即全电普票
+                        "invoiceLine" => $params['invoiceLine'] ?? "p",
+                        "specificFactor" => $params['specificFactor'] ?? "0", // 特定要素：0普通发票（默认） 、 1成品油、 31建安发票 、 32房地产销售发票
+                        // 代开标志：0非代开;1代开。
+                        // 代开蓝票时备注要求填写文案：代开企业税号:***,代开企业名称:***；
+                        // 代开红票时备注要求填写文案：对应正数发票代码:***号码:***代开企业税号:***代开企业名称:***
+                        "proxyInvoiceFlag" => $params['proxyInvoiceFlag'] ?? "",
+                        "callBackUrl" => self::$config['call_back_url'] ?? "",
+                        "extensionNumber" => $params['extensionNumber'] ?? "", // 分机号（只能为空或者数字）
+                        "terminalNumber" => $params['terminalNumber'] ?? "", // 终端号（开票终端号，只能 为空或数字）
+                        "machineCode" => $params['machineCode'] ?? "", // 机器编号（12位盘号）
+                        "vehicleFlag" => $params['vehicleFlag'] ?? "0", // 是否机动车类专票 0-否 1-是
+                        // 是否隐藏编码表版本号 0-否 1-是（默认0，在企业资质中也配置为是隐藏的时候，并且此字段传1的时候代开发票 税率显示***）
+                        "hiddenBmbbbh" => $params['hiddenBmbbbh'] ?? "0",
+                        // 指定开票发票代码（只有票种为：c或f时才有效，满足普票开二联、收购票开五联；nextInvoiceCode、nextInvoiceNum必须同时有值或同时为空）
+                        "nextInvoiceCode" => $params['nextInvoiceCode'] ?? "",
+                        // 指定开票发票号码（只有票种为：c或f时才有效，满足普票开二联、收购票开五联；nextInvoiceCode、nextInvoiceNum必须同时有值或同时为空）
+                        "nextInvoiceNum" => $params['nextInvoiceNum'] ?? "",
+                        // 3%、1%税率开具理由（企业为小规模/点下户时才需要），对应值：1-开具发票为2022年3月31日前发生纳税义务的业务；
+                        // 2-前期已开具相应征收率发票，发生销售折让、中止或者退回等情形需要开具红字发票，或者开票有误需要重新开具；
+                        // 3-因为实际经营业务需要，放弃享受免征增值税政策
+                        "surveyAnswerType" => $params['surveyAnswerType'] ?? "",
+                        "buyerManagerName" => $params['buyerManagerName'] ?? "", // 购买方经办人姓名（全电发票特有字段）
+                        // 经办人证件类型：
+                        // 101-组织机构代码证, 102-营业执照, 103-税务登记证, 199-其他单位证件, 201-居民身份证, 202-军官证,
+                        // 203-武警警官证, 204-士兵证, 205-军队离退休干部证, 206-残疾人证, 207-残疾军人证（1-8级）, 208-外国护照,
+                        // 210-港澳居民来往内地通行证, 212-中华人民共和国往来港澳通行证, 213-台湾居民来往大陆通行证, 214-大陆居民往来台湾通行证,
+                        // 215-外国人居留证, 216-外交官证 299-其他个人证 件(全电发票特有)
+                        "managerCardType" => $params['managerCardType'] ?? "201",
+                        "managerCardNo" => $params['managerCardNo'] ?? "", // 经办人证件号码（全电发票特有字段）
+                        "invoiceDetail" => array(
+                            // 商品名称（如invoiceLineProperty =1，则此商品行为折扣行，折扣行不允许多行折扣，折扣行必须紧邻被折扣行，商品名称必须与被折扣行一致）
+                            "goodsName" => $params['goodsName'] ?? "",
+                            "goodsCode" => $params['goodsCode'] ?? "", // 商品编码（商品税收分类编码开发者自行填写）
+                            "selfCode" => $params['selfCode'] ?? "", // 自行编码（可不填）
+                            "withTaxFlag" => self::$config['with_tax_flag'] ?? "", // 单价含税标志：0:不含税,1:含税
+                            // 单价（精确到小数点后8位），当单价(price)为空时，数量(num)也必须为空；
+                            // (price)为空时，含税金额(taxIncludedAmount)、不含税金额(taxExcludedAmount)、税额(tax)都不能为空
+                            "price" => $params['price'] ?? "",
+                            "num" => $params['num'] ?? "", // 数量（精确到小数点后8位，开具红票时数量为负数）
+                            "unit" => $params['unit'] ?? "", // 单位
+                            "specType" => $params['specType'] ?? "", // 规格型号
+                            // 税额，[不含税金额] * [税率] = [税额]；税额允许误差为 0.06。红票为负。
+                            // 不含税金额、税额、含税金额任何一个不传时，会根据传入的单价，数量进行计算，可能和实际数值存在误差，建议都传入
+                            "tax" => $params['tax'] ?? "",
+                            // 税率，注：1、纸票清单红票存在为null的情况；2、二手车发票税率为null或者0
+                            "taxRate" => $params['taxRate'] ?? "",
+                            // 不含税金额。红票为负。不含税金额、税额、含税金额任何一个不传时，会根据传入的单价，数量进行计算，可能和实际数值存在误差，建议都传入
+                            "taxExcludedAmount" => $params['taxExcludedAmount'] ?? "",
+                            // 含税金额，[不含税金额] + [税额] = [含税金额]，红票为负。不含税金额、税额、含税金额任何一个不传时，会根据传入的单价，数量进行计算，可能和实际数值存在误差，建议都传入
+                            "taxIncludedAmount" => $params['taxIncludedAmount'] ?? "",
+                            "invoiceLineProperty" => $params['invoiceLineProperty'] ?? "0", // 发票行性质：0,正常行;1,折扣行;2,被折扣行，红票只有正常行
+                            // 优惠政策标识：0,不使用;1,使用;
+                            // 全电发票时： 01：简易征收 02：稀土产品 03：免税 04：不征税 05：先征后退 06：100%先征后退 07：50%先征后退 08：按3%简易征收 09：按5%简易征收 10：按5%
+                            // 简易征收减按1.5%计征 11：即征即退30%12：即征即退50% 13：即征即退70% 14：即征即退100% 15：超税负3%即征即退16：超税负8%即征即退 17：超税负12%
+                            // 即征即退 18：超税负6%即征即退
+                            "favouredPolicyFlag" => $params['favouredPolicyFlag'] ?? "",
+                            // 增值税特殊管理（优惠政策名称）,当favouredPolicyFlag为1时，此项必填 （全电发票时为空）
+                            "favouredPolicyName" => $params['favouredPolicyName'] ?? "",
+                            // 扣除额，差额征收时填写，目前只支持填写一项。 注意：当传0、空或字段不传时，都表示非差额征税；传0.00才表示差额征税：0.00 （全电发票暂不支持）
+                            "deduction" => $params['deduction'] ?? "",
+                            // 零税率标识：空,非零税率;1,免税;2,不征税;3,普通零税率；1、当税率为：0%，且增值税特殊管理：为“免税”， 零税率标识：需传“1” 2、当税率为：0%，且增值
+                            // 税特殊管理：为"不征税" 零税率标识：需传“2” 3、当税率为：0%，且增值税特殊管理：为空 零税率标识：需传“3”（全电发票时为空）
+                            "zeroRateFlag" => $params['zeroRateFlag'] ?? "",
+                            // 附加模版名称（全电发票特有字段，附加模版有值时需要添加附加要素信息列表对象，需要先在电子税局平台维护好模版）
+                            "additionalElementName" => $params['additionalElementName'] ?? "",
+                        ),
+                        "additionalElementList" => array(
+                            "elementName" => $params['elementName'] ?? "", // 信息名称（全电发票特有字段；需要与电子税局中的模版中的附加要素信息名称一致）
+                            "elementType" => $params['elementType'] ?? "", // 信息类型（全电发票特有字段）
+                            "elementValue" => $params['elementValue'] ?? "", // 信息值（全电发票特有字段）
+                        )
+                    ),
+                );
 
-        $content = $this->packageInfo->getEmail($data);
-        $xml = $this->packageInfo->getXml(self::EMAIL, $content);
+                if(!empty(self::$config['is_vehicle'])){
+                    // 车辆类型,同明细中商品名称，开具机动车发票时明细有且仅有一行，商品名称为车辆类型且不能为空
+                    $body['order']['vehicleInfo']['vehicleType'] = $params['vehicleType'] ?? "";
+                    $body['order']['vehicleInfo']['brandModel'] = $params['brandModel'] ?? ""; // 厂牌型号
+                    $body['order']['vehicleInfo']['productOrigin'] = $params['productOrigin'] ?? ""; // 原产地
+                    $body['order']['vehicleInfo']['certificate'] = $params['certificate'] ?? ""; // 合格证号
+                    $body['order']['vehicleInfo']['importCerNum'] = $params['importCerNum'] ?? ""; // 进出口证明书号
+                    $body['order']['vehicleInfo']['insOddNum'] = $params['insOddNum'] ?? ""; // 商检单号
+                    $body['order']['vehicleInfo']['engineNum'] = $params['engineNum'] ?? ""; // 发动机号码
+                    $body['order']['vehicleInfo']['vehicleCode'] = $params['vehicleCode'] ?? ""; // 车辆识别号码/车架号
+                    $body['order']['vehicleInfo']['intactCerNum'] = $params['intactCerNum'] ?? ""; // 完税证明号码
+                    $body['order']['vehicleInfo']['tonnage'] = $params['tonnage'] ?? ""; // 吨位
+                    $body['order']['vehicleInfo']['maxCapacity'] = $params['maxCapacity'] ?? ""; // 限乘人数
+                    // 其他证件号码/身份证号码/组织机构代码；该字段为空则为2021新版常规机动车发票，此时购方税号必填（个人在购方税号中填身份证号）；该字段有值，则为2021
+                    // 新版其他证件号码的机动车发票（可以录入汉字、大写字母、数字、全角括号等，此时购方税号需要为空；用于港澳台、国外等特殊身份/税号开机动车票时使用）
+                    $body['order']['vehicleInfo']['idNumOrgCode'] = $params['idNumOrgCode'] ?? "";
+                    $body['order']['vehicleInfo']['manufacturerName'] = $params['manufacturerName'] ?? ""; // 生产厂家（A9开票服务器类型可支持200）
+                    $body['order']['vehicleInfo']['taxOfficeName'] = $params['taxOfficeName'] ?? ""; // 主管税务机关名称（A9开票服务器类型必填）
+                    $body['order']['vehicleInfo']['taxOfficeCode'] = $params['taxOfficeCode'] ?? ""; // 主管税务机关代码（A9开票服务器类型必填）
+                }
 
-        $response = $this->postCurl(self::$host, $xml);
+                if(!empty(self::$config['is_second_hand_car'])){
+                    $body['order']['secondHandCarInfo']['organizeType'] = $params['organizeType'] ?? ""; // 开票方类型 1：经营单位 2：拍卖单位 3：二手车市场
+                    $body['order']['secondHandCarInfo']['vehicleType'] = $params['vehicleType'] ?? ""; // 车辆类型,同明细中商品名称，开具机动车发票时明细有且仅有一行，商品名称为车辆类型且不能为空
+                    $body['order']['secondHandCarInfo']['brandModel'] = $params['brandModel'] ?? ""; // 厂牌型号
+                    $body['order']['secondHandCarInfo']['vehicleCode'] = $params['vehicleCode'] ?? ""; // 车辆识别号码/车架号
+                    $body['order']['secondHandCarInfo']['intactCerNum'] = $params['intactCerNum'] ?? ""; // 完税证明号码
+                    $body['order']['secondHandCarInfo']['licenseNumber'] = $params['licenseNumber'] ?? ""; // 车牌照号
+                    $body['order']['secondHandCarInfo']['registerCertNo'] = $params['registerCertNo'] ?? ""; // 登记证号
+                    $body['order']['secondHandCarInfo']['vehicleManagementName'] = $params['vehicleManagementName'] ?? ""; // 转入地车管所名称
+                    $body['order']['secondHandCarInfo']['sellerName'] = $params['sellerName'] ?? ""; // 卖方单位/个人名称（开票方类型为1、2时，必须与销方名称一致）
+                    $body['order']['secondHandCarInfo']['sellerTaxnum'] = $params['sellerTaxnum'] ?? ""; // 卖方单位代码/身份证号码（开票方类型为1、2时，必须与销方税号一致）
+                    $body['order']['secondHandCarInfo']['sellerAddress'] = $params['sellerAddress'] ?? ""; // 卖方单位/个人地址（开票方类型为1、2时，必须与销方地址一致）
+                    $body['order']['secondHandCarInfo']['sellerPhone'] = $params['sellerPhone'] ?? ""; // 卖方单位/个人电话（开票方类型为1、2时，必须与销方电话一致）
+                }
 
-        $return = simplexml_load_string($response);
-
-
-        if ($return->returnStateInfo->returnCode[0] == '0000') {
-            //修改状态
-            return $return;
-        } else {
-            echo "\n INVOICE INFO ERROR EMAIL \t {$return->returnStateInfo->returnCode[0]}\t";
+                break;
+            default :
+                $body = [];
+                break;
         }
 
-        return $return;
-    }
-
-    /**
-     * 发票剩余数量
-     *
-     * @return mixed
-     */
-    public function getInvoiceNumber()
-    {
-        $content = $this->packageInfo->getInvoiceNumber();
-        $xml = $this->packageInfo->getXml(self::INVOICENUMBER, $content);
-
-        $response = $this->postCurl(self::$host, $xml);
-        $return = simplexml_load_string($response);
-
-        $res['code'] = (string) $return->returnStateInfo->returnCode[0];
-        $res['message'] = base64_decode($return->returnStateInfo->returnMessage[0]);
-        if ($return->returnStateInfo->returnCode[0] == '0000') {
-            $content = base64_decode($return->Data->content[0]);
-            $rs = openssl_decrypt($content, "des-ede3", str_pad(self::$key, 24, '0'), 1);
-            $data = strip_tags(trim($rs));
-            $res['number'] = (int) trim(explode(' ', $data)['8']);
-        } else {
-            $res['number'] = '';
-        }
-
-        return $res;
+        return json_encode($body);
     }
 }
