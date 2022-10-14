@@ -14,30 +14,41 @@ class InvoiceSDK
 {
     /**
      * SDK版本号
+     *
      * @var string
      */
     public static $VERSION = "2.0.0";
 
+    /**
+     * 访问授权地址
+     *
+     * @var string
+     */
     public static $AUTH_URL = "https://open.nuonuo.com/accessToken";
 
+    /**
+     * 文件配置
+     *
+     * @var array
+     */
     private static $config = [];
 
+    /**
+     * 初始化属性
+     *
+     * @param $config
+     */
     public function __construct($config)
     {
         self::$config = $config;
     }
 
     /**
-     *
      * 商家应用获取accessToken
      *
-     * 返回报文:
-     * {"access_token":"xxx","expires_in":86400}
-     *
-     * @param appKey    开放平台appKey
-     * @param appSecret 开放平台appSecret
-     * @return bool|string|成功时返回，其他抛异常
-     * @throws Exception()
+     * @param $timeOut
+     * @return bool|string
+     * @throws Exception
      */
     public static function getMerchantToken($timeOut = 6)
     {
@@ -62,16 +73,9 @@ class InvoiceSDK
     /**
      * ISV应用获取accessToken
      *
-     * 返回报文:
-     * {"access_token":"xxx","expires_in":86400,"refresh_token":"xxx","userId":"xxx","oauthUser":"{\"userName\":\"xxx\",\"registerType\":\"1\"}","userName":"xxx","registerType":"1"}
-     *
-     * @param appKey      开放平台appKey
-     * @param appSecret   开放平台appSecret
-     * @param code        临时授权码
-     * @param taxnum      授权商户税号
-     * @param redirectUri 授权回调地址
-     * @return bool|string|成功时返回，其他抛异常
-     * @throws Exception()
+     * @param $timeOut
+     * @return bool|string
+     * @throws Exception
      */
     public static function getISVToken($timeOut = 6)
     {
@@ -102,16 +106,13 @@ class InvoiceSDK
     /**
      * ISV应用刷新accessToken
      *
-     * 返回报文:
-     * {"access_token":"xxx","refresh_token":"xxx","expires_in":86400}
-     *
-     * @param refreshToken 调用令牌
-     * @param userId       oauthUser中的userId
-     * @param appSecret    开放平台appSecret
-     * @return bool|string|成功时返回，其他抛异常
-     * @throws Exception()
+     * @param $refreshToken
+     * @param $userId
+     * @param $timeOut
+     * @return bool|string
+     * @throws Exception
      */
-    public static function refreshISVToken($refreshToken, $userId, $appSecret, $timeOut = 6)
+    public static function refreshISVToken($refreshToken, $userId, $timeOut = 6)
     {
         self::checkParam($userId, "userId不能为空");
         self::checkParam(self::$config['app_secret'], "appSecret不能为空");
@@ -134,16 +135,14 @@ class InvoiceSDK
 
     /**
      * 发送HTTP POST请求 <同步>
-     * @param url       请求地址
-     * @param senid     流水号
-     * @param appKey    appKey
-     * @param appSecret appSecret
-     * @param token     授权码
-     * @param taxnum    税号, 普通商户可不填
-     * @param method    API名称
-     * @param content   私有参数, 标准JSON格式
-     * @return bool|string|成功时返回，其他抛异常
-     * @throws Exception()
+     *
+     * @param $senid
+     * @param $token
+     * @param $method
+     * @param $content
+     * @param $timeOut
+     * @return mixed
+     * @throws Exception
      */
     public static function sendPostSyncRequest($senid, $token,$method, $content, $timeOut = 6)
     {
@@ -190,6 +189,14 @@ class InvoiceSDK
         }
     }
 
+    /**
+     * 验证参数
+     *
+     * @param $param
+     * @param $errMsg
+     * @return void
+     * @throws Exception
+     */
     public static function checkParam($param, $errMsg)
     {
         if(empty($param)) {
@@ -266,7 +273,7 @@ class InvoiceSDK
      *
      * @param array $params 参数
      * @param string $method 请求方法名
-     * @return array|false|string
+     * @return false|string
      */
     public static function getBody(array $params,string $method){
         switch ($method){
