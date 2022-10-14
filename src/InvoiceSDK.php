@@ -46,7 +46,7 @@ class InvoiceSDK
     /**
      * 商家应用获取accessToken
      *
-     * @param $timeOut
+     * @param $timeOut 超时时间
      * @return bool|string
      * @throws Exception
      */
@@ -67,13 +67,14 @@ class InvoiceSDK
         $params = http_build_query($params);
 
         $res = self::postCurl(self::$AUTH_URL, $params, $headers, $timeOut);
-        return $res;
+
+        return json_decode($res);
     }
 
     /**
      * ISV应用获取accessToken
      *
-     * @param $timeOut
+     * @param $timeOut 超时时间
      * @return bool|string
      * @throws Exception
      */
@@ -100,15 +101,16 @@ class InvoiceSDK
         $params = http_build_query($params);
 
         $res = self::postCurl(self::$AUTH_URL, $params, $headers, $timeOut);
-        return $res;
+
+        return json_decode($res);
     }
 
     /**
      * ISV应用刷新accessToken
      *
-     * @param $refreshToken
-     * @param $userId
-     * @param $timeOut
+     * @param $refreshToken 调用令牌
+     * @param $userId oauthUser中的userId
+     * @param $timeOut 超时时间
      * @return bool|string
      * @throws Exception
      */
@@ -130,17 +132,18 @@ class InvoiceSDK
         $params = http_build_query($params);
 
         $res = self::postCurl(self::$AUTH_URL, $params, $headers, $timeOut);
-        return $res;
+
+        return json_decode($res);
     }
 
     /**
      * 发送HTTP POST请求 <同步>
      *
-     * @param $senid
-     * @param $token
-     * @param $method
-     * @param $content
-     * @param $timeOut
+     * @param $senid sendid
+     * @param $token 授权码
+     * @param $method API名称
+     * @param $content 私有参数, 标准JSON格式
+     * @param $timeOut 超时时间
      * @return mixed
      * @throws Exception
      */
@@ -192,8 +195,8 @@ class InvoiceSDK
     /**
      * 验证参数
      *
-     * @param $param
-     * @param $errMsg
+     * @param $param 参数
+     * @param $errMsg 错误信息
      * @return void
      * @throws Exception
      */
@@ -251,13 +254,13 @@ class InvoiceSDK
     /**
      * 计算签名
      *
-     * @param $path
-     * @param $appSecret
-     * @param $appKey
-     * @param $senid
-     * @param $nonce
-     * @param $body
-     * @param $timestamp
+     * @param $path 请求地址
+     * @param $appSecret 流水号
+     * @param $appKey appKey
+     * @param $senid sendid
+     * @param $nonce 随机码
+     * @param $body 请求包体
+     * @param $timestamp 时间戳
      * @return string
      */
     public static function MakeSign($path, $appSecret, $appKey, $senid, $nonce, $body, $timestamp)
