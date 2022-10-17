@@ -58,12 +58,28 @@ return [
     'saler_address' => '',
     // 销方银行开户行及账号(二手车销售统一发票时必填)
     'saler_account' => '',
+    // 复核人
+    'checker' => '',
+    // 收款人
+    'payee' => '',
+    // 部门门店id（诺诺系统中的id）
+    'department_id' => '',
+    // 开票员id
+    'clerk_id' => '',
+    // 开票员（全电发票时需要传入和开票登录账号对应的开票员姓名）
+    'clerk' => '',
     // 单价含税标志：0:不含税,1:含税
     'with_tax_flag' => '',
     // 是否机动车销售统一发票
     'is_vehicle' => '0',
-    // 开具二手车销售统一发票
+    // 开具二手车销售统一发票才需要传
     'is_second_hand_car' => '0',
+    // 分机号（只能为空或者数字）
+    'extension_number' => '',
+    // 终端号（开票终端号，只能 为空或数字）
+    'terminal_number' => '',
+    // 机器编号（12位盘号）
+    'machine_code' => '',
 ];
 ```
 
@@ -77,7 +93,7 @@ return [
         // nuonuo.ElectronInvoice.requestBillingNew 开具发票
         // nuonuo.ElectronInvoice.queryInvoiceResult 获取发票结果
         $method = "";
-        $body = InvoiceSDK::getBody($arr,$method);
+        $body = InvoiceSDK::getBody($params,$method); // 获取过滤参数
         $senid = "唯一标识，32位随机码";
         $res = InvoiceSDK::sendPostSyncRequest($senid, $token->access_token, $method, $body);
 

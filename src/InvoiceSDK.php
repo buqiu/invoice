@@ -17,21 +17,21 @@ class InvoiceSDK
      *
      * @var string
      */
-    public static $VERSION = "2.0.0";
+    public static string $VERSION = "2.0.0";
 
     /**
      * 访问授权地址
      *
      * @var string
      */
-    public static $AUTH_URL = "https://open.nuonuo.com/accessToken";
+    public static string $AUTH_URL = "https://open.nuonuo.com/accessToken";
 
     /**
      * 文件配置
      *
      * @var array
      */
-    private static $config = [];
+    private static array $config = [];
 
     /**
      * 初始化属性
@@ -46,11 +46,11 @@ class InvoiceSDK
     /**
      * 商家应用获取accessToken
      *
-     * @param $timeOut 超时时间
+     * @param $timeOut int 超时时间
      * @return bool|string
      * @throws Exception
      */
-    public static function getMerchantToken($timeOut = 6)
+    public static function getMerchantToken(int $timeOut = 6): bool|string
     {
         //检测必填参数
         self::checkParam(self::$config['app_key'], "AppKey不能为空");
@@ -74,17 +74,17 @@ class InvoiceSDK
     /**
      * ISV应用获取accessToken
      *
-     * @param $timeOut 超时时间
+     * @param $timeOut int 超时时间
      * @return bool|string
      * @throws Exception
      */
-    public static function getISVToken($timeOut = 6)
+    public static function getISVToken(int $timeOut = 6): bool|string
     {
         //检测必填参数
         self::checkParam(self::$config['app_key'], "AppKey不能为空");
         self::checkParam(self::$config['app_secret'], "AppSecret不能为空");
         self::checkParam(self::$config['code'], "code不能为空");
-        self::checkParam(self::$config['tax_num'], "taxnum不能为空");
+        self::checkParam(self::$config['tax_num'], "tax_num不能为空");
         self::checkParam(self::$config['redirect_uri'], "redirectUri不能为空");
 
         $headers = array(
@@ -108,13 +108,13 @@ class InvoiceSDK
     /**
      * ISV应用刷新accessToken
      *
-     * @param $refreshToken 调用令牌
-     * @param $userId oauthUser中的userId
-     * @param $timeOut 超时时间
+     * @param string $refreshToken 调用令牌
+     * @param int $userId oauthUser中的userId
+     * @param int $timeOut 超时时间
      * @return bool|string
      * @throws Exception
      */
-    public static function refreshISVToken($refreshToken, $userId, $timeOut = 6)
+    public static function refreshISVToken(string $refreshToken, int $userId, int $timeOut = 6): bool|string
     {
         self::checkParam($userId, "userId不能为空");
         self::checkParam(self::$config['app_secret'], "appSecret不能为空");
@@ -139,15 +139,15 @@ class InvoiceSDK
     /**
      * 发送HTTP POST请求 <同步>
      *
-     * @param $senid sendid
-     * @param $token 授权码
-     * @param $method API名称
-     * @param $content 私有参数, 标准JSON格式
-     * @param $timeOut 超时时间
+     * @param string $senid sendid
+     * @param string $token 授权码
+     * @param string $method API名称
+     * @param mixed $content 私有参数, 标准JSON格式
+     * @param int $timeOut 超时时间
      * @return mixed
      * @throws Exception
      */
-    public static function sendPostSyncRequest($senid, $token,$method, $content, $timeOut = 6)
+    public static function sendPostSyncRequest(string $senid, string $token, string $method, mixed $content, int $timeOut = 6): mixed
     {
         $url = self::$config['url'];
         $appKey = self::$config['app_key'];
@@ -195,12 +195,12 @@ class InvoiceSDK
     /**
      * 验证参数
      *
-     * @param $param 参数
-     * @param $errMsg 错误信息
+     * @param mixed $param 参数
+     * @param string $errMsg 错误信息
      * @return void
      * @throws Exception
      */
-    public static function checkParam($param, $errMsg)
+    public static function checkParam(mixed $param, string $errMsg)
     {
         if(empty($param)) {
             throw new Exception($errMsg);
@@ -211,11 +211,11 @@ class InvoiceSDK
      * 以post方式发起http调用
      *
      * @param string $url  url
-     * @param array $params post参数
+     * @param string $params post参数
      * @param int $second   url执行超时时间，默认30s
      * @throws Exception()
      */
-    private static function postCurl($url, $params, $headers = array(), $second = 30)
+    private static function postCurl(string $url, string $params, $headers = array(), int $second = 30): bool|string
     {
         $ch = curl_init();
         $curlVersion = curl_version();
@@ -254,16 +254,16 @@ class InvoiceSDK
     /**
      * 计算签名
      *
-     * @param $path 请求地址
-     * @param $appSecret 流水号
-     * @param $appKey appKey
-     * @param $senid sendid
-     * @param $nonce 随机码
-     * @param $body 请求包体
-     * @param $timestamp 时间戳
+     * @param string $path 请求地址
+     * @param string $appSecret 流水号
+     * @param string $appKey appKey
+     * @param string $senid sendid
+     * @param string $nonce 随机码
+     * @param string $body 请求包体
+     * @param string $timestamp 时间戳
      * @return string
      */
-    public static function MakeSign($path, $appSecret, $appKey, $senid, $nonce, $body, $timestamp)
+    public static function MakeSign(string $path, string $appSecret, string $appKey, string $senid, string $nonce, string $body, string $timestamp): string
     {
         $pieces = explode('/', $path);
         $signStr = "a={$pieces[3]}&l={$pieces[2]}&p={$pieces[1]}&k={$appKey}&i={$senid}&n={$nonce}&t={$timestamp}&f={$body}";
@@ -278,7 +278,8 @@ class InvoiceSDK
      * @param string $method 请求方法名
      * @return false|string
      */
-    public static function getBody(array $params,string $method){
+    public static function getBody(array $params,string $method): bool|string
+    {
         switch ($method){
             case 'nuonuo.ElectronInvoice.queryInvoiceResult' :
                 $body = array("serialNos" => $params['serialNos'] ?? '',);
@@ -294,7 +295,7 @@ class InvoiceSDK
                         "salerTaxNum" => self::$config['tax_num'] ?? '', // 销方税号
                         "salerTel" => self::$config['saler_tel'] ?? "", // 销方电话
                         "salerAddress" => self::$config['saler_address'] ?? "", // 销方地址
-                        "salerAccount" => self::$config['salerAccount'] ?? "", // 销方银行开户行及账号(二手车销售统一发票时必填)
+                        "salerAccount" => self::$config['saler_acount'] ?? "", // 销方银行开户行及账号(二手车销售统一发票时必填)
                         "orderNo" => $params['orderNo'] ?? "", // 订单号（每个企业唯一）
                         "invoiceDate" => $params['buyerAccount'] ?? "", // 订单时间
                         "invoiceCode" => $params['invoiceCode'] ?? "", // 冲红时填写的对应蓝票发票代码（红票必填 10位或12 位， 11位的时候请左补 0）
@@ -304,15 +305,15 @@ class InvoiceSDK
                         // 红字信息表编号.专票冲红时此项必填，且必须在备注中注明“开具红字增值税专用发票信息表编号ZZZZZZZZZZZZZZZ
                         // Z”字样，其 中“Z”为开具红字增值税专用发票所需要的长度为16位信息表编号（建议16位，最长可支持24位）。
                         "billInfoNo" => $params['billInfoNo'] ?? "",
-                        "departmentId" => $params['departmentId'] ?? "", // 部门门店id（诺诺系统中的id）
-                        "clerkId" => $params['clerkId'] ?? "", // 开票员id（诺诺系统中的id）
+                        "departmentId" => self::$config['department_id'] ?? "", // 部门门店id（诺诺系统中的id）
+                        "clerkId" => self::$config['clerk_id'] ?? "", // 开票员id（诺诺系统中的id）
                         // 冲红时，在备注中注明“对应正数发票代码:XXXXXXXXX号码:YYYYYYYY”文案，其中“X”为发票代码，“Y”为发票号码，可以不填，接口会自动添加该文案；机动车发票蓝票时备注只能为空
                         "remark" => $params['remark'] ?? "",
                         "checker" => self::$config['checker'] ?? "", // 复核人
-                        "payee" => $params['payee'] ?? "", // 收款人
+                        "payee" => self::$config['payee'] ?? "", // 收款人
                         "clerk" => self::$config['clerk'] ?? "", // 开票员（全电发票时需要传入和开票登录账号对应的开票员姓名）
                         "listFlag" => $params['listFlag'] ?? "0", // 清单标志：非清单:0；清单:1，默认:0，电票固定为0
-                        "listName" => $params['listName'] ?? "详见销货清单", //清单项目名称：对应发票票面项目名称（listFlag为1时，必填，默认为“详见销货清单”）
+                        "listName" => !empty($params['listFlag']) ? ($params['listName'] ?? "详见销货清单") : "", //清单项目名称：对应发票票面项目名称（listFlag为1时，必填，默认为“详见销货清单”）
                         "pushMode" => $params['pushMode'] ?? "1", // 推送方式：-1,不推送;0,邮箱;1,手机（默认）;2,邮箱、手机
                         "buyerPhone" => $params['buyerPhone'] ?? "", // 购方手机（pushMode为1或2时，此项为必填，同时受企业资质是否必填控制）
                         "email" => $params['email'] ?? "", // 推送邮箱（pushMode为0或2时，此项为必填，同时受企业资质是否必填控制）
@@ -335,10 +336,10 @@ class InvoiceSDK
                         // 代开蓝票时备注要求填写文案：代开企业税号:***,代开企业名称:***；
                         // 代开红票时备注要求填写文案：对应正数发票代码:***号码:***代开企业税号:***代开企业名称:***
                         "proxyInvoiceFlag" => $params['proxyInvoiceFlag'] ?? "",
-                        "callBackUrl" => self::$config['call_back_url'] ?? "",
-                        "extensionNumber" => $params['extensionNumber'] ?? "", // 分机号（只能为空或者数字）
-                        "terminalNumber" => $params['terminalNumber'] ?? "", // 终端号（开票终端号，只能 为空或数字）
-                        "machineCode" => $params['machineCode'] ?? "", // 机器编号（12位盘号）
+                        "callBackUrl" => self::$config['call_back_url'] ?? "", // 开票回调地址
+                        "extensionNumber" => self::$config['extension_number'] ?? "", // 分机号（只能为空或者数字）
+                        "terminalNumber" => self::$config['terminal_number'] ?? "", // 终端号（开票终端号，只能 为空或数字）
+                        "machineCode" => self::$config['machine_code'] ?? "", // 机器编号（12位盘号）
                         "vehicleFlag" => $params['vehicleFlag'] ?? "0", // 是否机动车类专票 0-否 1-是
                         // 是否隐藏编码表版本号 0-否 1-是（默认0，在企业资质中也配置为是隐藏的时候，并且此字段传1的时候代开发票 税率显示***）
                         "hiddenBmbbbh" => $params['hiddenBmbbbh'] ?? "0",
