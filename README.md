@@ -52,8 +52,6 @@ return [
     'url' => '',
     // 开票回调地址
     'call_back_url' => '',
-    // 开票类型：1:蓝票;2:红票
-    'invoice_type' => '1',
     // 销方电话
     'saler_tel' => '',
     // 销方地址
