@@ -317,7 +317,7 @@ class InvoiceSDK
                         "pushMode" => $params['pushMode'] ?? "1", // 推送方式：-1,不推送;0,邮箱;1,手机（默认）;2,邮箱、手机
                         "buyerPhone" => $params['buyerPhone'] ?? "", // 购方手机（pushMode为1或2时，此项为必填，同时受企业资质是否必填控制）
                         "email" => $params['email'] ?? "", // 推送邮箱（pushMode为0或2时，此项为必填，同时受企业资质是否必填控制）
-                        "invoiceType" => self::$config['invoice_type'] ?? "1", // 开票类型：1:蓝票;2:红票 （全电发票暂不支持红票）
+                        "invoiceType" => $params['invoiceType'] ?? "1", // 开票类型：1:蓝票;2:红票 （全电发票暂不支持红票）
                         // 发票种类：
                         // p,普通发票(电票)(默认);
                         // c,普通发票(纸票);
