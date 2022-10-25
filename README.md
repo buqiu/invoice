@@ -52,6 +52,8 @@ return [
     'url' => '',
     // 开票回调地址
     'call_back_url' => '',
+    // 开票类型：1:蓝票;2:红票
+    'invoice_type' => '1',
     // 销方电话
     'saler_tel' => '',
     // 销方地址
@@ -88,14 +90,16 @@ return [
 ```
     public function api()
     {
-        $token = InvoiceSDK::getMerchantToken();// 访问令牌 
+        $invoiceSdk = new InvoiceSDK(config('invoice'));
+        $token = $invoiceSdk->getMerchantToken();// 访问令牌
         // API方法名 :
         // nuonuo.ElectronInvoice.requestBillingNew 开具发票
         // nuonuo.ElectronInvoice.queryInvoiceResult 获取发票结果
-        $method = "";
-        $body = InvoiceSDK::getBody($params,$method); // 获取过滤参数
+        $method = "nuonuo.ElectronInvoice.queryInvoiceResult";
+        $body = $invoiceSdk->getBody($params,$method); // 获取过滤参数
         $senid = "唯一标识，32位随机码";
-        $res = InvoiceSDK::sendPostSyncRequest($senid, $token->access_token, $method, $body);
+
+        $res = $invoiceSdk->sendPostSyncRequest($senid, $token->access_token, $method, $body);
 
         return $res;
     }

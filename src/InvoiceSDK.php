@@ -50,7 +50,7 @@ class InvoiceSDK
      * @return bool|string
      * @throws Exception
      */
-    public static function getMerchantToken(int $timeOut = 6): bool|string
+    public function getMerchantToken(int $timeOut = 6): object
     {
         //检测必填参数
         self::checkParam(self::$config['app_key'], "AppKey不能为空");
@@ -147,7 +147,7 @@ class InvoiceSDK
      * @return mixed
      * @throws Exception
      */
-    public static function sendPostSyncRequest(string $senid, string $token, string $method, mixed $content, int $timeOut = 6): mixed
+    public function sendPostSyncRequest(string $senid, string $token, string $method, mixed $content, int $timeOut = 6): mixed
     {
         $url = self::$config['url'];
         $appKey = self::$config['app_key'];
@@ -278,7 +278,7 @@ class InvoiceSDK
      * @param string $method 请求方法名
      * @return false|string
      */
-    public static function getBody(array $params,string $method): bool|string
+    public function getBody(array $params,string $method): bool|string
     {
         switch ($method){
             case 'nuonuo.ElectronInvoice.queryInvoiceResult' :
@@ -297,7 +297,7 @@ class InvoiceSDK
                         "salerAddress" => self::$config['saler_address'] ?? "", // 销方地址
                         "salerAccount" => self::$config['saler_acount'] ?? "", // 销方银行开户行及账号(二手车销售统一发票时必填)
                         "orderNo" => $params['orderNo'] ?? "", // 订单号（每个企业唯一）
-                        "invoiceDate" => $params['buyerAccount'] ?? "", // 订单时间
+                        "invoiceDate" => $params['invoiceDate'] ?? "", // 订单时间
                         "invoiceCode" => $params['invoiceCode'] ?? "", // 冲红时填写的对应蓝票发票代码（红票必填 10位或12 位， 11位的时候请左补 0）
                         "invoiceNum" => $params['invoiceNum'] ?? "", // 冲红时填写的对应蓝票发票号码（红票必填，不满8位请左补0）
                         // 冲红原因：1:销货退回;2:开票有误;3:服务中止;4:发生销售折让(开具红票时且票种为p,c,e,f,r需要传--成品油发票除外；不传时默认为 1)
@@ -317,7 +317,7 @@ class InvoiceSDK
                         "pushMode" => $params['pushMode'] ?? "1", // 推送方式：-1,不推送;0,邮箱;1,手机（默认）;2,邮箱、手机
                         "buyerPhone" => $params['buyerPhone'] ?? "", // 购方手机（pushMode为1或2时，此项为必填，同时受企业资质是否必填控制）
                         "email" => $params['email'] ?? "", // 推送邮箱（pushMode为0或2时，此项为必填，同时受企业资质是否必填控制）
-                        "invoiceType" => $params['invoiceType'] ?? "", // 开票类型：1:蓝票;2:红票 （全电发票暂不支持红票）
+                        "invoiceType" => self::$config['invoice_type'] ?? "1", // 开票类型：1:蓝票;2:红票 （全电发票暂不支持红票）
                         // 发票种类：
                         // p,普通发票(电票)(默认);
                         // c,普通发票(纸票);
