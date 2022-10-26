@@ -255,9 +255,9 @@ class InvoiceSDK
      * 计算签名
      *
      * @param string $path 请求地址
-     * @param string $appSecret 流水号
+     * @param string $appSecret appSecret
      * @param string $appKey appKey
-     * @param string $senid sendid
+     * @param string $senid senid
      * @param string $nonce 随机码
      * @param string $body 请求包体
      * @param string $timestamp 时间戳
