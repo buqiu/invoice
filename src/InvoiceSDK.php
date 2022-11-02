@@ -162,7 +162,6 @@ class InvoiceSDK
         self::checkParam($content, "content不能为空");
         self::checkParam($appSecret, "appSecret不能为空");
 
-
         try {
             $timestamp = time();
             $nonce = rand(10000, 1000000000);
@@ -282,7 +281,12 @@ class InvoiceSDK
     {
         switch ($method){
             case 'nuonuo.ElectronInvoice.queryInvoiceResult' :
-                $body = array("serialNos" => $params['serialNos'] ?? '',);
+                if(isset($params['serialNos'])){
+                    $body['serialNos'] = $params['serialNos'];
+                }
+                if(isset($params['orderNos'])){
+                    $body['orderNos'] = $params['orderNos'];
+                }
                 break;
             case 'nuonuo.ElectronInvoice.requestBillingNew' :
                 $body =  array(
@@ -441,8 +445,13 @@ class InvoiceSDK
                 }
 
                 break;
+            case 'nuonuo.electronInvoice.queryCount' :
+                $body['identity'] = $params['identity'] ?? "";
+                $body['taxNo'] = self::$config['tax_num'] ?? "";
+
+                break;
             default :
-                $body = [];
+                $body = json_decode("{}");
                 break;
         }
 
