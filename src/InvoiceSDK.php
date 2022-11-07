@@ -46,8 +46,8 @@ class InvoiceSDK
     /**
      * 商家应用获取accessToken
      *
-     * @param $timeOut int 超时时间
-     * @return bool|string
+     * @param int $timeOut 超时时间
+     * @return object
      * @throws Exception
      */
     public function getMerchantToken(int $timeOut = 6): object
@@ -74,7 +74,7 @@ class InvoiceSDK
     /**
      * ISV应用获取accessToken
      *
-     * @param $timeOut int 超时时间
+     * @param int $timeOut 超时时间
      * @return bool|string
      * @throws Exception
      */
@@ -379,7 +379,7 @@ class InvoiceSDK
                             // 不含税金额、税额、含税金额任何一个不传时，会根据传入的单价，数量进行计算，可能和实际数值存在误差，建议都传入
                             "tax" => $params['tax'] ?? "",
                             // 税率，注：1、纸票清单红票存在为null的情况；2、二手车发票税率为null或者0
-                            "taxRate" => !empty(self::$config['with_tax_flag']) ? ($params['taxRate'] ?? "") : "",
+                            "taxRate" => $params['taxRate'] ?? "",
                             // 不含税金额。红票为负。不含税金额、税额、含税金额任何一个不传时，会根据传入的单价，数量进行计算，可能和实际数值存在误差，建议都传入
                             "taxExcludedAmount" => $params['taxExcludedAmount'] ?? "",
                             // 含税金额，[不含税金额] + [税额] = [含税金额]，红票为负。不含税金额、税额、含税金额任何一个不传时，会根据传入的单价，数量进行计算，可能和实际数值存在误差，建议都传入
