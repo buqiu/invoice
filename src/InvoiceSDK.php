@@ -318,7 +318,7 @@ class InvoiceSDK
                         "clerk" => self::$config['clerk'] ?? "", // 开票员（全电发票时需要传入和开票登录账号对应的开票员姓名）
                         "listFlag" => $params['listFlag'] ?? "0", // 清单标志：非清单:0；清单:1，默认:0，电票固定为0
                         "listName" => !empty($params['listFlag']) ? ($params['listName'] ?? "详见销货清单") : "", //清单项目名称：对应发票票面项目名称（listFlag为1时，必填，默认为“详见销货清单”）
-                        "pushMode" => $params['pushMode'] ?? "1", // 推送方式：-1,不推送;0,邮箱;1,手机（默认）;2,邮箱、手机
+                        "pushMode" => $params['pushMode'] ?? "-1", // 推送方式：-1,不推送;0,邮箱;1,手机（默认）;2,邮箱、手机
                         "buyerPhone" => $params['buyerPhone'] ?? "", // 购方手机（pushMode为1或2时，此项为必填，同时受企业资质是否必填控制）
                         "email" => $params['email'] ?? "", // 推送邮箱（pushMode为0或2时，此项为必填，同时受企业资质是否必填控制）
                         "invoiceType" => $params['invoiceType'] ?? "1", // 开票类型：1:蓝票;2:红票 （全电发票暂不支持红票）
