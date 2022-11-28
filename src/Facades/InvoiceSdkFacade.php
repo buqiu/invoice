@@ -13,7 +13,14 @@ use Illuminate\Support\Facades\Facade;
 
 class InvoiceSdkFacade extends Facade
 {
-    protected static function getFacadeAccessor()
+    /**
+     * Notes: 发票 sdk 门面
+     * User : smallK
+     * Date : 2022/11/28
+     * Time : 10:00
+     * @return string
+     */
+    protected static function getFacadeAccessor(): string
     {
         return 'invoice';
     }

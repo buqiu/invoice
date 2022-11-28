@@ -18,7 +18,7 @@ class InvoiceProvider extends ServiceProvider
      *
      * @var bool
      */
-    protected $defer = false;
+    protected bool $defer = false;
 
     /**
      * 引导应用程序服务
