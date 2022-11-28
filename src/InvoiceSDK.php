@@ -139,7 +139,7 @@ class InvoiceSDK
     /**
      * 发送HTTP POST请求 <同步>
      *
-     * @param string $senid sendid
+     * @param string $senId sendId
      * @param string $token 授权码
      * @param string $method API名称
      * @param mixed $content 私有参数, 标准JSON格式
@@ -147,14 +147,14 @@ class InvoiceSDK
      * @return mixed
      * @throws Exception
      */
-    public function sendPostSyncRequest(string $senid, string $token, string $method, mixed $content, int $timeOut = 6): mixed
+    public function sendPostSyncRequest(string $senId, string $token, string $method, mixed $content, int $timeOut = 6): mixed
     {
         $url = self::$config['url'];
         $appKey = self::$config['app_key'];
         $appSecret = self::$config['app_secret'];
-        $taxnum = self::$config['tax_num'];
+        $taxNum = self::$config['tax_num'];
 
-        self::checkParam($senid, "senid不能为空");
+        self::checkParam($senId, "senId不能为空");
         self::checkParam($token, "token不能为空");
         self::checkParam($appKey, "appKey不能为空");
         self::checkParam($method, "method不能为空");
@@ -166,20 +166,20 @@ class InvoiceSDK
             $timestamp = time();
             $nonce = rand(10000, 1000000000);
 
-            $finalUrl = "{$url}?senid={$senid}&nonce={$nonce}&timestamp={$timestamp}&appkey={$appKey}";
+            $finalUrl = "{$url}?senid={$senId}&nonce={$nonce}&timestamp={$timestamp}&appkey={$appKey}";
 
             $urlInfo = parse_url($url);
             if ($urlInfo === FALSE) {
                 throw new Exception("url解析失败");
             }
 
-            $sign = self::makeSign($urlInfo["path"], $appSecret, $appKey, $senid, $nonce, $content, $timestamp);
+            $sign = self::makeSign($urlInfo["path"], $appSecret, $appKey, $senId, $nonce, $content, $timestamp);
 
             $headers = array(
                 "Content-Type: application/json",
                 "X-Nuonuo-Sign: {$sign}",
                 "accessToken: {$token}",
-                "userTax: {$taxnum}",
+                "userTax: {$taxNum}",
                 "method: {$method}",
                 "sdkVer: " . self::$VERSION
             );
@@ -256,16 +256,16 @@ class InvoiceSDK
      * @param string $path 请求地址
      * @param string $appSecret appSecret
      * @param string $appKey appKey
-     * @param string $senid senid
+     * @param string $senId senId
      * @param string $nonce 随机码
      * @param string $body 请求包体
      * @param string $timestamp 时间戳
      * @return string
      */
-    public static function MakeSign(string $path, string $appSecret, string $appKey, string $senid, string $nonce, string $body, string $timestamp): string
+    public static function MakeSign(string $path, string $appSecret, string $appKey, string $senId, string $nonce, string $body, string $timestamp): string
     {
         $pieces = explode('/', $path);
-        $signStr = "a={$pieces[3]}&l={$pieces[2]}&p={$pieces[1]}&k={$appKey}&i={$senid}&n={$nonce}&t={$timestamp}&f={$body}";
+        $signStr = "a={$pieces[3]}&l={$pieces[2]}&p={$pieces[1]}&k={$appKey}&i={$senId}&n={$nonce}&t={$timestamp}&f={$body}";
 
         return base64_encode(hash_hmac("sha1", $signStr, $appSecret, true));
     }
