@@ -299,7 +299,7 @@ class InvoiceSDK
                         "salerTaxNum" => self::$config['tax_num'] ?? '', // 销方税号
                         "salerTel" => self::$config['saler_tel'] ?? "", // 销方电话
                         "salerAddress" => self::$config['saler_address'] ?? "", // 销方地址
-                        "salerAccount" => self::$config['saler_acount'] ?? "", // 销方银行开户行及账号(二手车销售统一发票时必填)
+                        "salerAccount" => self::$config['saler_account'] ?? "", // 销方银行开户行及账号(二手车销售统一发票时必填)
                         "orderNo" => $params['orderNo'] ?? "", // 订单号（每个企业唯一）
                         "invoiceDate" => $params['invoiceDate'] ?? "", // 订单时间
                         "invoiceCode" => $params['invoiceCode'] ?? "", // 冲红时填写的对应蓝票发票代码（红票必填 10位或12 位， 11位的时候请左补 0）
@@ -341,9 +341,9 @@ class InvoiceSDK
                         // 代开红票时备注要求填写文案：对应正数发票代码:***号码:***代开企业税号:***代开企业名称:***
                         "proxyInvoiceFlag" => $params['proxyInvoiceFlag'] ?? "",
                         "callBackUrl" => self::$config['call_back_url'] ?? "", // 开票回调地址
-                        "extensionNumber" => self::$config['extension_number'] ?? "", // 分机号（只能为空或者数字）
-                        "terminalNumber" => self::$config['terminal_number'] ?? "", // 终端号（开票终端号，只能 为空或数字）
-                        "machineCode" => self::$config['machine_code'] ?? "", // 机器编号（12位盘号）
+                        "extensionNumber" => $params['extensionNumber'] ?? "", // 分机号（只能为空或者数字）
+                        "terminalNumber" => $params['terminalNumber'] ?? "", // 终端号（开票终端号，只能 为空或数字）
+                        "machineCode" => $params['machineCode'] ?? "", // 机器编号（12位盘号）
                         "vehicleFlag" => $params['vehicleFlag'] ?? "0", // 是否机动车类专票 0-否 1-是
                         // 是否隐藏编码表版本号 0-否 1-是（默认0，在企业资质中也配置为是隐藏的时候，并且此字段传1的时候代开发票 税率显示***）
                         "hiddenBmbbbh" => $params['hiddenBmbbbh'] ?? "0",

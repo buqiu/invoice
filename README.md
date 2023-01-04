@@ -74,12 +74,6 @@ return [
     'is_vehicle' => '0',
     // 开具二手车销售统一发票才需要传
     'is_second_hand_car' => '0',
-    // 分机号（只能为空或者数字）
-    'extension_number' => '',
-    // 终端号（开票终端号，只能 为空或数字）
-    'terminal_number' => '',
-    // 机器编号（12位盘号）
-    'machine_code' => '',
 ];
 ```
 
