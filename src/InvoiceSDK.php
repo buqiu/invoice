@@ -368,7 +368,7 @@ class InvoiceSDK
                             "goodsName" => $params['goodsName'] ?? "",
                             "goodsCode" => $params['goodsCode'] ?? "", // 商品编码（商品税收分类编码开发者自行填写）
                             "selfCode" => $params['selfCode'] ?? "", // 自行编码（可不填）
-                            "withTaxFlag" => self::$config['with_tax_flag'] ?? "", // 单价含税标志：0:不含税,1:含税
+                            "withTaxFlag" => $params['withTaxFlag'] ?? "", // 单价含税标志：0:不含税,1:含税
                             // 单价（精确到小数点后8位），当单价(price)为空时，数量(num)也必须为空；
                             // (price)为空时，含税金额(taxIncludedAmount)、不含税金额(taxExcludedAmount)、税额(tax)都不能为空
                             "price" => $params['price'] ?? "",
