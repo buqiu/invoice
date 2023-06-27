@@ -20,21 +20,21 @@ class InvoiceSDK
      *
      * @var string
      */
-    public static string $VERSION = '2.0.0';
+    public static $VERSION = '2.0.0';
 
     /**
      * 访问授权地址
      *
      * @var string
      */
-    public static string $AUTH_URL = 'https://open.nuonuo.com/accessToken';
+    public static $AUTH_URL = 'https://open.nuonuo.com/accessToken';
 
     /**
      * 文件配置.
      *
      * @var array
      */
-    private static array $config = [];
+    private static $config = [];
 
     /**
      * 初始化属性.
@@ -77,11 +77,10 @@ class InvoiceSDK
     /**
      * ISV应用获取accessToken.
      *
-     * @param  int         $timeOut 超时时间
-     * @return bool|string
+     * @param  int        $timeOut 超时时间
      * @throws \Exception
      */
-    public static function getISVToken(int $timeOut = 6): bool|string
+    public static function getISVToken(int $timeOut = 6)
     {
         // 检测必填参数
         self::checkParam(self::$config['app_key'], 'AppKey不能为空');
@@ -111,13 +110,12 @@ class InvoiceSDK
     /**
      * ISV应用刷新accessToken.
      *
-     * @param  string      $refreshToken 调用令牌
-     * @param  int         $userId       oauthUser中的userId
-     * @param  int         $timeOut      超时时间
-     * @return bool|string
+     * @param  string     $refreshToken 调用令牌
+     * @param  int        $userId       oauthUser中的userId
+     * @param  int        $timeOut      超时时间
      * @throws \Exception
      */
-    public static function refreshISVToken(string $refreshToken, int $userId, int $timeOut = 6): bool|string
+    public static function refreshISVToken(string $refreshToken, int $userId, int $timeOut = 6)
     {
         self::checkParam($userId, 'userId不能为空');
         self::checkParam(self::$config['app_secret'], 'appSecret不能为空');
@@ -150,7 +148,7 @@ class InvoiceSDK
      * @return mixed
      * @throws \Exception
      */
-    public function sendPostSyncRequest(string $senId, string $token, string $method, mixed $content, int $timeOut = 6): mixed
+    public function sendPostSyncRequest(string $senId, string $token, string $method, $content, int $timeOut = 6)
     {
         $url       = self::$config['url'];
         $appKey    = self::$config['app_key'];
@@ -201,7 +199,7 @@ class InvoiceSDK
      * @param  string     $errMsg 错误信息
      * @throws \Exception
      */
-    public static function checkParam(mixed $param, string $errMsg)
+    public static function checkParam($param, string $errMsg)
     {
         if (empty($param)) {
             throw new \Exception($errMsg);
@@ -231,11 +229,10 @@ class InvoiceSDK
     /**
      * 过滤参数.
      *
-     * @param  array        $params 参数
-     * @param  string       $method 请求方法名
-     * @return false|string
+     * @param array  $params 参数
+     * @param string $method 请求方法名
      */
-    public function getBody(array $params, string $method): bool|string
+    public function getBody(array $params, string $method)
     {
         $body = [];
 
@@ -506,7 +503,7 @@ class InvoiceSDK
      * @param mixed  $headers
      * @throws Exception()
      */
-    private static function postCurl(string $url, string $params, $headers = [], int $second = 30): bool|string
+    private static function postCurl(string $url, string $params, $headers = [], int $second = 30)
     {
         $ch          = curl_init();
         $curlVersion = curl_version();
