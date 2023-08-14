@@ -247,6 +247,24 @@ class InvoiceSDK
 
                 break;
 
+            case 'nuonuo.OpeMplatform.reInvoice':
+                if (isset($params['fpqqlsh'])) {
+                    $body['fpqqlsh'] = $params['fpqqlsh'];
+                }
+                if (isset($params['orderno'])) {
+                    $body['orderno'] = $params['orderno'];
+                }
+                if (isset($params['nextInvoiceCode'])) {
+                    $body['nextInvoiceCode'] = $params['nextInvoiceCode'];
+                }
+                if (isset($params['invoiceNumStart'])) {
+                    $body['invoiceNumStart'] = $params['invoiceNumStart'];
+                }
+                if (isset($params['invoiceNumEnd'])) {
+                    $body['invoiceNumEnd'] = $params['invoiceNumEnd'];
+                }
+
+                break;
             case 'nuonuo.ElectronInvoice.requestBillingNew':
             case 'nuonuo.OpeMplatform.requestBillingNew':
                 $body = [
