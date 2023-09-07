@@ -265,6 +265,7 @@ class InvoiceSDK
                 }
 
                 break;
+
             case 'nuonuo.ElectronInvoice.requestBillingNew':
             case 'nuonuo.OpeMplatform.requestBillingNew':
                 $body = [
@@ -500,6 +501,13 @@ class InvoiceSDK
                 $body['billUuid']        = $params['billUuid']            ?? '';
                 $body['invoiceLine']     = $params['invoiceLine']         ?? '';
                 $body['callBackUrl']     = self::$config['call_back_url'] ?? '';
+
+                break;
+
+            case 'nuonuo.OpeMplatform.queryInvoiceResult':
+                $body['serialNos']            = $params['serialNos']            ?? '';
+                $body['orderNos']             = $params['orderNos']             ?? '';
+                $body['isOfferInvoiceDetail'] = $params['isOfferInvoiceDetail'] ?? '';
 
                 break;
 
